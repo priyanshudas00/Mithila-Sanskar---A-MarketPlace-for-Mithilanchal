@@ -115,7 +115,7 @@ const ProductDetail = () => {
             <span>/</span>
             <Link to="/shop" className="hover:text-foreground">Shop</Link>
             <span>/</span>
-            <Link to="/shop?category=paintings" className="hover:text-foreground">{product.category}</Link>
+            <Link to={`/shop?category=${product.category?.id || "all"}`} className="hover:text-foreground">{product.category?.name || "Crafts"}</Link>
             <span>/</span>
             <span className="text-foreground">{product.name}</span>
           </nav>
