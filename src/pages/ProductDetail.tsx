@@ -4,14 +4,16 @@ import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Heart, ShoppingCart, Share2, Truck, Shield, RotateCcw, Star, MapPin, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, ShoppingCart, Share2, Truck, Shield, RotateCcw, Star, MapPin, Minus, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { useProduct } from "@/hooks/useProducts";
 import productPainting from "@/assets/product-painting-1.jpg";
 import artisanImage from "@/assets/artisan-painting.jpg";
 import { getSiteOrigin } from "@/lib/config";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const { data: product, isLoading } = useProduct(id || "");
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const { addToCart } = useCart();
@@ -68,34 +70,38 @@ const ProductDetail = () => {
   };
 
   const goToNext = () => {
+    if (!product) return;
     setActiveImage((prev) => (prev + 1) % product.images.length);
   };
 
-  // Mock product data
-  const product = {
-    id: id,
-    name: "Traditional Fish Motif Madhubani Painting",
-    price: 3500,
-    originalPrice: 4500,
-    images: [productPainting, productPainting, productPainting],
-    artisan: {
-      name: "Sunita Devi",
-      image: artisanImage,
-      village: "Ranti Village, Madhubani",
-      experience: 25,
-      productsCount: 45,
-      rating: 4.9,
-    },
-    category: "Mithila Paintings",
-    description: "This exquisite Madhubani painting features the traditional fish motif, symbolizing fertility and prosperity in Mithila culture. Hand-painted using natural colors derived from turmeric, indigo, and other organic sources on handmade paper.",
-    story: "This painting follows a tradition that dates back over 2,500 years. The fish motif (Matsya) is one of the most auspicious symbols in Mithila art, representing prosperity, good luck, and fertility. Each fish is carefully painted with intricate scales using natural dyes.",
-    materials: ["Handmade paper", "Natural dyes", "Bamboo brush"],
-    dimensions: "15 x 20 inches (38 x 51 cm)",
-    craftTime: "7-10 days",
-    giTagged: true,
-    reviews: 48,
-    rating: 4.9,
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="pt-24 pb-20 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="pt-24 pb-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-2xl font-serif mb-4">Product not found</h1>
+            <Link to="/shop">
+              <Button variant="heritage">Back to Shop</Button>
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,7 +130,7 @@ const ProductDetail = () => {
                 onTouchEnd={handleTouchEnd}
               >
                 <img
-                  src={product.images[activeImage]}
+                  src={product.images[activeImage]?.image_url || productPainting}
                   alt={product.name}
                   className="w-full h-full object-cover transition-opacity duration-300"
                   draggable={false}
@@ -167,7 +173,7 @@ const ProductDetail = () => {
                         activeImage === idx ? "border-terracotta" : "border-transparent"
                       }`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img src={img.image_url} alt="" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
@@ -179,7 +185,7 @@ const ProductDetail = () => {
               {/* Badges */}
               <div className="flex items-center gap-3">
                 <span className="artisan-badge">Handcrafted</span>
-                {product.giTagged && (
+                {product.is_gi_tagged && (
                   <span className="px-3 py-1 text-xs font-medium bg-sage/20 text-sage rounded-full">
                     GI Tagged
                   </span>
@@ -189,7 +195,7 @@ const ProductDetail = () => {
               {/* Title & Category */}
               <div>
                 <p className="text-sm text-primary uppercase tracking-wider mb-2">
-                  {product.category}
+                  {product.category?.name || "Crafts"}
                 </p>
                 <h1 className="font-serif text-3xl md:text-4xl text-foreground">
                   {product.name}
@@ -203,15 +209,15 @@ const ProductDetail = () => {
                     <Star
                       key={i}
                       className={`w-5 h-5 ${
-                        i < Math.floor(product.rating)
+                        i < Math.floor(product.seller?.rating || 0)
                           ? "text-golden fill-golden"
                           : "text-muted"
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-foreground font-medium">{product.rating}</span>
-                <span className="text-muted-foreground">({product.reviews} reviews)</span>
+                <span className="text-foreground font-medium">{product.seller?.rating || 0}</span>
+                <span className="text-muted-foreground">({product.views_count || 0} views)</span>
               </div>
 
               {/* Price */}
@@ -219,13 +225,13 @@ const ProductDetail = () => {
                 <span className="font-serif text-4xl text-foreground">
                   ₹{product.price.toLocaleString()}
                 </span>
-                {product.originalPrice && (
+                {product.compare_at_price && (
                   <>
                     <span className="text-xl text-muted-foreground line-through">
-                      ₹{product.originalPrice.toLocaleString()}
+                      ₹{product.compare_at_price.toLocaleString()}
                     </span>
                     <span className="text-sage font-medium">
-                      {Math.round((1 - product.price / product.originalPrice) * 100)}% off
+                      {Math.round((1 - product.price / product.compare_at_price) * 100)}% off
                     </span>
                   </>
                 )}
@@ -233,33 +239,33 @@ const ProductDetail = () => {
 
               {/* Description */}
               <p className="text-muted-foreground leading-relaxed">
-                {product.description}
+                {product.description || "Authentic handcrafted product from Mithila artisans"}
               </p>
 
               {/* Artisan Card */}
               <Link
-                to={`/artisan/${product.artisan.name.toLowerCase().replace(/\s/g, "-")}`}
+                to={`/artisan/${product.seller?.business_name.toLowerCase().replace(/\s/g, "-")}`}
                 className="flex items-center gap-4 p-4 bg-secondary rounded-xl hover:bg-secondary/80 transition-colors"
               >
                 <img
-                  src={product.artisan.image}
-                  alt={product.artisan.name}
+                  src={product.seller?.avatar_url || artisanImage}
+                  alt={product.seller?.business_name || "Artisan"}
                   className="w-16 h-16 rounded-full object-cover"
                 />
                 <div className="flex-1">
                   <p className="text-sm text-muted-foreground">Created by</p>
-                  <p className="font-serif text-lg text-foreground">{product.artisan.name}</p>
+                  <p className="font-serif text-lg text-foreground">{product.seller?.business_name || "Unknown Artisan"}</p>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <MapPin className="w-3 h-3" />
-                    {product.artisan.village}
+                    {product.seller?.village || "Mithila"}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-1 text-sm">
                     <Star className="w-4 h-4 text-golden fill-golden" />
-                    <span className="font-medium">{product.artisan.rating}</span>
+                    <span className="font-medium">{product.seller?.rating || 0}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{product.artisan.experience}+ years</p>
+                  <p className="text-xs text-muted-foreground">{product.seller?.years_experience || 0}+ years</p>
                 </div>
               </Link>
 
@@ -318,21 +324,27 @@ const ProductDetail = () => {
             <div>
               <h2 className="font-serif text-2xl text-foreground mb-4">The Story Behind This Art</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                {product.story}
+                {product.story || product.description}
               </p>
               <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <span className="text-muted-foreground">Materials:</span>
-                  <span className="font-medium">{product.materials.join(", ")}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-muted-foreground">Dimensions:</span>
-                  <span className="font-medium">{product.dimensions}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-muted-foreground">Craft Time:</span>
-                  <span className="font-medium">{product.craftTime}</span>
-                </div>
+                {product.materials && (
+                  <div className="flex items-center gap-4">
+                    <span className="text-muted-foreground">Materials:</span>
+                    <span className="font-medium">{Array.isArray(product.materials) ? product.materials.join(", ") : product.materials}</span>
+                  </div>
+                )}
+                {product.dimensions && (
+                  <div className="flex items-center gap-4">
+                    <span className="text-muted-foreground">Dimensions:</span>
+                    <span className="font-medium">{product.dimensions}</span>
+                  </div>
+                )}
+                {product.craft_time && (
+                  <div className="flex items-center gap-4">
+                    <span className="text-muted-foreground">Craft Time:</span>
+                    <span className="font-medium">{product.craft_time}</span>
+                  </div>
+                )}
               </div>
             </div>
             <div className="bg-secondary rounded-xl p-6">
