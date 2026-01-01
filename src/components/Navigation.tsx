@@ -108,6 +108,14 @@ const Navigation = () => {
                     </Button>
                   </Link>
                 )}
+                {!isSeller && (
+                  <Link to="/seller/register">
+                    <Button variant="cultural" size="sm" className="gap-1">
+                      <Store className="w-4 h-4" />
+                      Become a Seller
+                    </Button>
+                  </Link>
+                )}
                 {isAdmin && (
                   <Link to="/admin">
                     <Button variant="outline" size="sm" className="gap-1">
@@ -246,7 +254,15 @@ const Navigation = () => {
                     <Link to="/seller/dashboard" onClick={() => setIsOpen(false)}>
                       <Button variant="heritage" size="default" className="w-full justify-start gap-3 h-12">
                         <span className="text-lg">🏪</span>
-                        Seller Dashboard
+                        Run Your Store
+                      </Button>
+                    </Link>
+                  )}
+                  {!isSeller && (
+                    <Link to="/seller/register" onClick={() => setIsOpen(false)}>
+                      <Button variant="cultural" size="default" className="w-full justify-start gap-3 h-12">
+                        <span className="text-lg">🏪</span>
+                        Become a Seller
                       </Button>
                     </Link>
                   )}
@@ -269,12 +285,6 @@ const Navigation = () => {
                     <Button variant="heritage" size="default" className="w-full justify-start gap-3 h-12">
                       <span className="text-lg">🔐</span>
                       Sign In / Register
-                    </Button>
-                  </Link>
-                  <Link to="/seller/register" onClick={() => setIsOpen(false)}>
-                    <Button variant="cultural" size="default" className="w-full justify-start gap-3 h-12">
-                      <span className="text-lg">🏪</span>
-                      Become a Seller
                     </Button>
                   </Link>
                 </>
