@@ -154,6 +154,17 @@ const Footer = () => {
               <Link to="/sellers-agreement" className="hover:text-cream transition-colors">Seller Agreement</Link>
             </div>
           </div>
+          <div className="text-center mt-4">
+            <a 
+              href="https://www.linkedin.com/in/priyanshudas00" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-cream/10 hover:bg-terracotta text-cream text-sm font-medium rounded-full transition-colors"
+            >
+              <span>Built with ❤️ by</span>
+              <span className="font-semibold">Priyanshu Raj</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>
