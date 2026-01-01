@@ -17,6 +17,12 @@ const SignInWithGoogle = () => {
   const [loading, setLoading] = useState(false);
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+  // Listen for the success event emitted by AuthContext after OAuth redirect
+  window.addEventListener('mithila:auth-success', (e: any) => {
+    const name = e?.detail?.name || '';
+    toast({ title: `Signed in as ${name}`, description: 'Welcome back!', });
+  });
+
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {

@@ -83,8 +83,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setSession(data.session);
           setUser(data.session.user ?? null);
           checkUserRoles(data.session.user.id);
-          // Clean URL to remove tokens
-          try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) { /* ignore */ }
+          // show success and redirect to home, then clean URL to remove tokens
+          try {
+            const name = data.session.user.user_metadata?.full_name || data.session.user.email || 'User';
+            // Use a toast if available by dispatching a custom event (to avoid coupling here)
+            window.dispatchEvent(new CustomEvent('mithila:auth-success', { detail: { name } }));
+            // Clean URL and navigate home
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+            window.location.replace('/');
+          } catch (e) { /* ignore */ }
         }
       }).catch((err) => console.error('getSessionFromUrl failed', err));
     }
