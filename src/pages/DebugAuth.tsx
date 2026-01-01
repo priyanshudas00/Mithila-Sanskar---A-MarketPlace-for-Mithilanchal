@@ -9,6 +9,8 @@ const DebugAuth = () => {
   const [output, setOutput] = useState<string | null>(null);
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const viteSiteUrl = import.meta.env.VITE_SITE_URL;
+  const runtimeOrigin = window.location.origin;
 
   const runTest = async () => {
     setOutput('Running test...');
@@ -19,8 +21,9 @@ const DebugAuth = () => {
       } else {
         setOutput('Redirect initiated (check browser popup or window).');
       }
-    } catch (e: any) {
-      setOutput(`Exception: ${e?.message || String(e)}`);
+    } catch (e: unknown) {
+      const msg = (e && typeof e === 'object' && 'message' in e) ? (e as any).message : String(e);
+      setOutput(`Exception: ${msg}`);
     }
   };
 
@@ -38,6 +41,12 @@ const DebugAuth = () => {
             </div>
             <div className="mb-3">
               <strong>VITE_GOOGLE_CLIENT_ID:</strong> <span className="text-sm text-muted-foreground">{googleClientId ? 'Present' : 'Missing'}</span>
+            </div>
+            <div className="mb-3">
+              <strong>VITE_SITE_URL (build-time):</strong> <span className="text-sm text-muted-foreground">{viteSiteUrl || 'Not set'}</span>
+            </div>
+            <div className="mb-3">
+              <strong>Runtime origin:</strong> <span className="text-sm text-muted-foreground">{runtimeOrigin}</span>
             </div>
             <div className="flex gap-3">
               <Button variant="cultural" onClick={runTest} disabled={!googleClientId}>Test Google Provider</Button>
