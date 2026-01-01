@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Not Found — MithilaSanskar</title>
+    <meta name="robots" content="noindex" />
+    <script>
+      // SPA fallback for static hosts (Cloudflare Pages, Netlify, etc.).
+      // When the server responds with this 404 page, fetch the app's index.html
+      // and replace the document so the client-side router can handle the path.
+      (async function () {
+        try {
+          const path = location.pathname + location.search + location.hash;
+          const resp = await fetch('/index.html');
+          if (!resp.ok) {
+            document.body.textContent = 'Page not found';
+            return;
+          }
+          const html = await resp.text();
+          document.open();
+          document.write(html);
+          document.close();
+          // Ensure the router sees the original path
+          history.replaceState(null, '', path);
+        } catch (e) {
+          // If fetch fails, just show a minimal message
+          document.body.textContent = 'Page not found';
+          console.error(e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Loading…</p>
+  </body>
+</html>
