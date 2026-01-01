@@ -1,72 +1,129 @@
+import { Suspense, lazy, memo } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import MobileBottomNav from "@/components/MobileBottomNav";
-import Index from "./pages/Index";
-import Shop from "./pages/Shop";
-import ProductDetail from "./pages/ProductDetail";
-import Auth from "./pages/Auth";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import OrderSuccess from "./pages/OrderSuccess";
-import OrderHistory from "./pages/OrderHistory";
-import OrderDetail from "./pages/OrderDetail";
-import SellerRegister from "./pages/SellerRegister";
-import SellerDashboard from "./pages/SellerDashboard";
-import AddProduct from "./pages/AddProduct";
-import Admin from "./pages/Admin";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import SellersAgreement from "./pages/SellersAgreement";
-import Artisans from "./pages/Artisans";
-import Artisan from "./pages/Artisan";
-import Story from "./pages/Story";
-import Profile from "./pages/Profile";
-import Wishlist from "./pages/Wishlist";
-import DebugAuth from "./pages/DebugAuth";
-import NotFound from "./pages/NotFound";
-const queryClient = new QueryClient();
+import ErrorBoundary from "@/components/ErrorBoundary";
+import PageLoader from "@/components/PageLoader";
+import { queryClient } from "@/lib/queryClient";
+
+// Lazy load all page components for code splitting
+// Critical pages loaded with prefetch priority
+const Index = lazy(() => import("./pages/Index"));
+const Shop = lazy(() => import("./pages/Shop"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Cart = lazy(() => import("./pages/Cart"));
+
+// Less critical pages loaded on-demand
+const Checkout = lazy(() => import("./pages/Checkout"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const OrderHistory = lazy(() => import("./pages/OrderHistory"));
+const OrderDetail = lazy(() => import("./pages/OrderDetail"));
+const SellerRegister = lazy(() => import("./pages/SellerRegister"));
+const SellerDashboard = lazy(() => import("./pages/SellerDashboard"));
+const AddProduct = lazy(() => import("./pages/AddProduct"));
+const Admin = lazy(() => import("./pages/Admin"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const SellersAgreement = lazy(() => import("./pages/SellersAgreement"));
+const Artisans = lazy(() => import("./pages/Artisans"));
+const Artisan = lazy(() => import("./pages/Artisan"));
+const Story = lazy(() => import("./pages/Story"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Debug routes only in development
+const DebugAuth = lazy(() => import("./pages/DebugAuth"));
+
+// Memoized Mobile Navigation - loaded separately
+const MobileBottomNav = lazy(() => import("@/components/MobileBottomNav"));
+
+// Suspense wrapper for consistent loading experience
+const SuspenseWrapper = memo(function SuspenseWrapper({ 
+  children 
+}: { 
+  children: React.ReactNode 
+}) {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      {children}
+    </Suspense>
+  );
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-success/:orderId" element={<OrderSuccess />} />
-            <Route path="/orders" element={<OrderHistory />} />
-            <Route path="/order/:orderId" element={<OrderDetail />} />
-            <Route path="/seller/register" element={<SellerRegister />} />
-            <Route path="/seller/dashboard" element={<SellerDashboard />} />
-            <Route path="/seller/products/new" element={<AddProduct />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/sellers-agreement" element={<SellersAgreement />} />
-            <Route path="/artisans" element={<Artisans />} />
-            <Route path="/artisan/:id" element={<Artisan />} />
-            <Route path="/story" element={<Story />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/debug/auth" element={<DebugAuth />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <MobileBottomNav />
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider delayDuration={300}>
+          <Toaster />
+          <Sonner 
+            position="top-center"
+            closeButton
+            richColors
+            duration={4000}
+          />
+          <BrowserRouter>
+            <ErrorBoundary>
+              <Routes>
+                {/* Public Routes - High Priority */}
+                <Route path="/" element={<SuspenseWrapper><Index /></SuspenseWrapper>} />
+                <Route path="/shop" element={<SuspenseWrapper><Shop /></SuspenseWrapper>} />
+                <Route path="/product/:id" element={<SuspenseWrapper><ProductDetail /></SuspenseWrapper>} />
+                <Route path="/auth" element={<SuspenseWrapper><Auth /></SuspenseWrapper>} />
+                <Route path="/cart" element={<SuspenseWrapper><Cart /></SuspenseWrapper>} />
+                
+                {/* Checkout Flow */}
+                <Route path="/checkout" element={<SuspenseWrapper><Checkout /></SuspenseWrapper>} />
+                <Route path="/order-success/:orderId" element={<SuspenseWrapper><OrderSuccess /></SuspenseWrapper>} />
+                
+                {/* User Account Routes */}
+                <Route path="/orders" element={<SuspenseWrapper><OrderHistory /></SuspenseWrapper>} />
+                <Route path="/order/:orderId" element={<SuspenseWrapper><OrderDetail /></SuspenseWrapper>} />
+                <Route path="/profile" element={<SuspenseWrapper><Profile /></SuspenseWrapper>} />
+                <Route path="/wishlist" element={<SuspenseWrapper><Wishlist /></SuspenseWrapper>} />
+                
+                {/* Seller Routes */}
+                <Route path="/seller/register" element={<SuspenseWrapper><SellerRegister /></SuspenseWrapper>} />
+                <Route path="/seller/dashboard" element={<SuspenseWrapper><SellerDashboard /></SuspenseWrapper>} />
+                <Route path="/seller/products/new" element={<SuspenseWrapper><AddProduct /></SuspenseWrapper>} />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={<SuspenseWrapper><Admin /></SuspenseWrapper>} />
+                
+                {/* Content Pages */}
+                <Route path="/artisans" element={<SuspenseWrapper><Artisans /></SuspenseWrapper>} />
+                <Route path="/artisan/:id" element={<SuspenseWrapper><Artisan /></SuspenseWrapper>} />
+                <Route path="/story" element={<SuspenseWrapper><Story /></SuspenseWrapper>} />
+                
+                {/* Legal Pages */}
+                <Route path="/privacy-policy" element={<SuspenseWrapper><PrivacyPolicy /></SuspenseWrapper>} />
+                <Route path="/terms-of-service" element={<SuspenseWrapper><TermsOfService /></SuspenseWrapper>} />
+                <Route path="/sellers-agreement" element={<SuspenseWrapper><SellersAgreement /></SuspenseWrapper>} />
+                
+                {/* Debug Route - Only in Development */}
+                {import.meta.env.DEV && (
+                  <Route path="/debug/auth" element={<SuspenseWrapper><DebugAuth /></SuspenseWrapper>} />
+                )}
+                
+                {/* 404 Fallback */}
+                <Route path="*" element={<SuspenseWrapper><NotFound /></SuspenseWrapper>} />
+              </Routes>
+            </ErrorBoundary>
+            
+            {/* Mobile Navigation - Lazy loaded */}
+            <Suspense fallback={null}>
+              <MobileBottomNav />
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
