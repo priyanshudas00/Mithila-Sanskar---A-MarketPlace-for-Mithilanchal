@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,10 +17,35 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
   
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addToCart } = useCart();
+
+  // Handle post-login redirect and auto add-to-cart
+  useEffect(() => {
+    if (user) {
+      const redirectUrl = searchParams.get('redirect');
+      const shouldAddToCart = searchParams.get('addToCart') === 'true';
+      
+      if (redirectUrl && shouldAddToCart) {
+        // Extract product ID from redirect URL (e.g., /product/123 -> 123)
+        const productId = redirectUrl.split('/').pop();
+        if (productId) {
+          // Add product to cart
+          addToCart(productId, 1);
+          // Redirect to product page
+          navigate(redirectUrl);
+        }
+      } else if (redirectUrl) {
+        navigate(redirectUrl);
+      } else {
+        navigate("/");
+      }
+    }
+  }, [user, searchParams, navigate, addToCart]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +65,7 @@ const Auth = () => {
             title: "Welcome back!",
             description: "You have successfully logged in.",
           });
-          navigate("/");
+          // Navigation will be handled by useEffect when user is set
         }
       } else {
         if (!fullName.trim()) {
@@ -72,7 +98,7 @@ const Auth = () => {
             title: "Welcome to MithilaSanskar!",
             description: "Your account has been created successfully.",
           });
-          navigate("/");
+          // Navigation will be handled by useEffect when user is set
         }
       }
     } catch (error: any) {

@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Heart, ShoppingCart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,12 +31,21 @@ const ProductCard = ({
   isHandmade = true,
   isFeatured = false,
 }: ProductCardProps) => {
+  const { user } = useAuth();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const { toast } = useToast();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      // Redirect to auth page with product info
+      navigate(`/auth?redirect=/product/${id}&addToCart=true`);
+      return;
+    }
+    
     addToCart(id, 1);
     toast({ title: "Added to cart", description: `${name} added to your cart` });
   };

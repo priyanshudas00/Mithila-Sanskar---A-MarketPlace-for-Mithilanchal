@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingCart, Share2, Truck, Shield, RotateCcw, Star, MapPin, Minus, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/contexts/AuthContext";
 import { useProduct } from "@/hooks/useProducts";
 import productPainting from "@/assets/product-painting-1.jpg";
 import artisanImage from "@/assets/artisan-painting.jpg";
@@ -13,6 +14,8 @@ import { getSiteOrigin } from "@/lib/config";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: product, isLoading } = useProduct(id || "");
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -286,7 +289,13 @@ const ProductDetail = () => {
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                <Button variant="cultural" size="xl" className="flex-1" onClick={() => addToCart.mutate({ productId: product.id, quantity })}>
+                <Button variant="cultural" size="xl" className="flex-1" onClick={() => {
+                  if (!user) {
+                    navigate(`/auth?redirect=/product/${product.id}&addToCart=true`);
+                    return;
+                  }
+                  addToCart.mutate({ productId: product.id, quantity });
+                }}>
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
                 </Button>
