@@ -71,30 +71,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    // If user was redirected back from OAuth (access_token in hash), exchange it for a session
+    // If user was redirected back from OAuth (access_token in hash), the onAuthStateChange
+    // listener above will automatically pick up the session. We just need to clean up the URL
+    // and show a success message once the session is set.
     const hash = window.location.hash || window.location.href;
     if (hash.includes('access_token') || hash.includes('provider_token') || hash.includes('refresh_token')) {
-      // getSessionFromUrl will parse the URL fragment and set the session
-      supabase.auth.getSessionFromUrl().then(({ data, error }) => {
-        if (error) {
-          console.error('Error processing OAuth redirect:', error);
-          return;
-        }
-        if (data?.session) {
-          setSession(data.session);
-          setUser(data.session.user ?? null);
-          checkUserRoles(data.session.user.id);
-          // show success and redirect to home, then clean URL to remove tokens
-          try {
-            const name = data.session.user.user_metadata?.full_name || data.session.user.email || 'User';
-            // Use a toast if available by dispatching a custom event (to avoid coupling here)
-            window.dispatchEvent(new CustomEvent('mithila:auth-success', { detail: { name } }));
-            // Clean URL and navigate home
-            history.replaceState(null, '', window.location.pathname + window.location.search);
+      // The supabase-js v2 client auto-parses the hash and fires onAuthStateChange.
+      // Wait briefly then clean URL and redirect (the listener above sets state).
+      setTimeout(() => {
+        try {
+          // Clean URL to remove tokens
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+          // Redirect to home if not already there
+          if (window.location.pathname !== '/') {
             window.location.replace('/');
-          } catch (e) { /* ignore */ }
-        }
-      }).catch((err) => console.error('getSessionFromUrl failed', err));
+          }
+        } catch (e) { /* ignore */ }
+      }, 500);
     }
 
     return () => subscription.unsubscribe();
