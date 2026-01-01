@@ -77,7 +77,7 @@ const Admin = () => {
   const fetchData = async () => {
     setIsLoading(true);
     
-    // Fetch sellers
+    // Fetch sellers with all details
     const { data: sellersData, error: sellersError } = await supabase
       .from("sellers")
       .select(`
@@ -89,24 +89,59 @@ const Admin = () => {
         craft_specialty,
         is_approved,
         is_verified,
-        created_at,
-        profiles:user_id(email, full_name)
+        created_at
       `)
       .order("created_at", { ascending: false });
     
     if (sellersError) {
       console.error("Error fetching sellers:", sellersError);
-    } else if (sellersData) {
-      setSellers(sellersData as unknown as Seller[]);
+    }
+
+    // Fetch profiles to match with sellers
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("user_id, email, full_name");
+
+    // Merge seller and profile data
+    if (sellersData && profilesData) {
+      const enrichedSellers = sellersData.map(seller => ({
+        ...seller,
+        profiles: profilesData.find(p => p.user_id === seller.user_id)
+      }));
+      setSellers(enrichedSellers as unknown as Seller[]);
     }
 
     // Fetch products
-    const { data: productsData } = await supabase
+    const { data: productsData, error: productsError } = await supabase
       .from("products")
-      .select("*, sellers(business_name)")
+      .select(`
+        id,
+        name,
+        price,
+        is_approved,
+        is_featured,
+        is_active,
+        created_at,
+        seller_id
+      `)
       .order("created_at", { ascending: false });
-    
-    if (productsData) setProducts(productsData as unknown as Product[]);
+
+    // Fetch sellers for product display
+    const { data: sellersForProducts } = await supabase
+      .from("sellers")
+      .select("id, business_name");
+
+    if (productsError) {
+      console.error("Error fetching products:", productsError);
+    }
+
+    if (productsData && sellersForProducts) {
+      const enrichedProducts = productsData.map(product => ({
+        ...product,
+        sellers: sellersForProducts.find(s => s.id === product.seller_id)
+      }));
+      setProducts(enrichedProducts as unknown as Product[]);
+    }
 
     // Fetch orders for stats
     const { data: ordersData } = await supabase
