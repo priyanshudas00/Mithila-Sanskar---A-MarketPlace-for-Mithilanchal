@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Menu, X, Search, User, Heart, LogOut, LayoutDashboard, Package } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, User, Heart, LogOut, LayoutDashboard, Package, Store, FileText, Shield, ScrollText, Handshake } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { siteUrlIsMisconfigured } from "@/lib/config";
@@ -16,10 +16,16 @@ const Navigation = () => {
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Shop", path: "/shop" },
-    { name: "Artisans", path: "/artisans" },
-    { name: "Our Story", path: "/story" },
+    { name: "🏠 Home", path: "/" },
+    { name: "🛍️ Shop", path: "/shop" },
+    { name: "👨‍🎨 Artisans", path: "/artisans" },
+    { name: "📖 Our Story", path: "/story" },
+  ];
+
+  const legalLinks = [
+    { name: "Privacy Policy", path: "/privacy-policy", icon: Shield },
+    { name: "Terms of Service", path: "/terms-of-service", icon: ScrollText },
+    { name: "Sellers Agreement", path: "/sellers-agreement", icon: Handshake },
   ];
 
   const showGoogleBanner = !googleClientId && window.location.hostname === 'mithilasanskar.shop';
@@ -72,15 +78,14 @@ const Navigation = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link to="/shop" className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Search products">
-              <Search className="w-5 h-5" />
+          <div className="hidden md:flex items-center gap-2">
+            <Link to="/shop" className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors" title="Search products">
+              <Search className="w-4 h-4" />
+              <span>Search</span>
             </Link>
-            <Link to="/shop" className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Wishlist">
-              <Heart className="w-5 h-5" />
-            </Link>
-            <Link to="/cart" className="p-2 text-muted-foreground hover:text-foreground transition-colors relative">
-              <ShoppingCart className="w-5 h-5" />
+            <Link to="/cart" className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors relative">
+              <ShoppingCart className="w-4 h-4" />
+              <span>Cart</span>
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-vermilion text-primary-foreground text-xs rounded-full flex items-center justify-center">
                   {cartCount}
@@ -90,41 +95,43 @@ const Navigation = () => {
             
             {user ? (
               <>
-                <Link to="/orders" className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-                  <Package className="w-5 h-5" />
+                <Link to="/orders" className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
+                  <Package className="w-4 h-4" />
+                  <span>My Orders</span>
                 </Link>
                 {isAdmin && (
                   <Link to="/admin">
-                    <Button variant="outline" size="sm">
-                      <LayoutDashboard className="w-4 h-4 mr-1" />
-                      Admin
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <LayoutDashboard className="w-4 h-4" />
+                      Admin Panel
                     </Button>
                   </Link>
                 )}
                 {isSeller && (
                   <Link to="/seller/dashboard">
-                    <Button variant="heritage" size="sm">
-                      <LayoutDashboard className="w-4 h-4 mr-1" />
-                      Dashboard
+                    <Button variant="heritage" size="sm" className="gap-1">
+                      <Store className="w-4 h-4" />
+                      Seller Dashboard
                     </Button>
                   </Link>
                 )}
-                <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4 mr-1" />
+                <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1">
+                  <LogOut className="w-4 h-4" />
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="heritage" size="sm">
-                    <User className="w-4 h-4 mr-1" />
-                    Sign In
+                  <Button variant="heritage" size="sm" className="gap-1">
+                    <User className="w-4 h-4" />
+                    Sign In / Register
                   </Button>
                 </Link>
                 <Link to="/seller/register">
-                  <Button variant="cultural" size="sm">
-                    Sell With Us
+                  <Button variant="cultural" size="sm" className="gap-1">
+                    <Store className="w-4 h-4" />
+                    Become a Seller
                   </Button>
                 </Link>
               </>
@@ -174,64 +181,116 @@ const Navigation = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-background border-t border-border animate-fade-in">
-          <div className="container mx-auto px-4 py-4 space-y-4">
-            {navLinks.map((link) => (
+        <div className="md:hidden bg-background border-t border-border animate-fade-in max-h-[80vh] overflow-y-auto">
+          <div className="container mx-auto px-4 py-4 space-y-3">
+            {/* Main Navigation */}
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">Navigation</p>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`block py-3 px-3 rounded-lg font-medium ${
+                    isActive(link.path)
+                      ? "text-primary bg-primary/10"
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+
+            {/* Shopping */}
+            <div className="space-y-1 pt-2 border-t border-border">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">Shopping</p>
               <Link
-                key={link.path}
-                to={link.path}
-                className={`block py-2 font-medium ${
-                  isActive(link.path)
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                }`}
+                to="/shop"
+                className="flex items-center gap-2 py-3 px-3 rounded-lg text-foreground hover:bg-muted"
                 onClick={() => setIsOpen(false)}
               >
-                {link.name}
+                <Search className="w-4 h-4" />
+                Search Products
               </Link>
-            ))}
-            <Link
-              to="/cart"
-              className="block py-2 font-medium text-muted-foreground"
-              onClick={() => setIsOpen(false)}
-            >
-              Cart ({cartCount})
-            </Link>
-            <div className="flex gap-4 pt-4 border-t border-border">
+              <Link
+                to="/cart"
+                className="flex items-center gap-2 py-3 px-3 rounded-lg text-foreground hover:bg-muted"
+                onClick={() => setIsOpen(false)}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                Cart {cartCount > 0 && <span className="ml-auto bg-vermilion text-cream text-xs px-2 py-0.5 rounded-full">{cartCount}</span>}
+              </Link>
+              {user && (
+                <Link
+                  to="/orders"
+                  className="flex items-center gap-2 py-3 px-3 rounded-lg text-foreground hover:bg-muted"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Package className="w-4 h-4" />
+                  My Orders
+                </Link>
+              )}
+            </div>
+
+            {/* Account Actions */}
+            <div className="space-y-2 pt-2 border-t border-border">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">Account</p>
               {user ? (
                 <>
                   {isSeller && (
-                    <Link to="/seller/dashboard" className="flex-1" onClick={() => setIsOpen(false)}>
-                      <Button variant="heritage" size="sm" className="w-full">
-                        Dashboard
+                    <Link to="/seller/dashboard" onClick={() => setIsOpen(false)}>
+                      <Button variant="heritage" size="sm" className="w-full justify-start gap-2">
+                        <Store className="w-4 h-4" />
+                        Seller Dashboard
                       </Button>
                     </Link>
                   )}
                   {isAdmin && (
-                    <Link to="/admin" className="flex-1" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" size="sm" className="w-full">
-                        Admin
+                    <Link to="/admin" onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                        <LayoutDashboard className="w-4 h-4" />
+                        Admin Panel
                       </Button>
                     </Link>
                   )}
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => { handleSignOut(); setIsOpen(false); }}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2" onClick={() => { handleSignOut(); setIsOpen(false); }}>
+                    <LogOut className="w-4 h-4" />
                     Sign Out
                   </Button>
                 </>
               ) : (
                 <>
-                  <Link to="/auth" className="flex-1" onClick={() => setIsOpen(false)}>
-                    <Button variant="heritage" size="sm" className="w-full">
-                      Sign In
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    <Button variant="heritage" size="sm" className="w-full justify-start gap-2">
+                      <User className="w-4 h-4" />
+                      Sign In / Register
                     </Button>
                   </Link>
-                  <Link to="/seller/register" className="flex-1" onClick={() => setIsOpen(false)}>
-                    <Button variant="cultural" size="sm" className="w-full">
-                      Sell With Us
+                  <Link to="/seller/register" onClick={() => setIsOpen(false)}>
+                    <Button variant="cultural" size="sm" className="w-full justify-start gap-2">
+                      <Store className="w-4 h-4" />
+                      Become a Seller
                     </Button>
                   </Link>
                 </>
               )}
+            </div>
+
+            {/* Legal Links */}
+            <div className="space-y-1 pt-2 border-t border-border">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">Legal & Policies</p>
+              {legalLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="flex items-center gap-2 py-2 px-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <link.icon className="w-4 h-4" />
+                  {link.name}
+                </Link>
+              ))}
             </div>
           </div>
         </div>
