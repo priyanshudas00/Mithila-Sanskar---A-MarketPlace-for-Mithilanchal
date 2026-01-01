@@ -86,12 +86,18 @@ const SellerDashboard = () => {
   // Update order item status mutation
   const updateOrderStatus = useMutation({
     mutationFn: async ({ orderItemId, newStatus }: { orderItemId: string; newStatus: string }) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('order_items')
         .update({ status: newStatus })
-        .eq('id', orderItemId);
+        .eq('id', orderItemId)
+        .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
+      
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
@@ -101,9 +107,10 @@ const SellerDashboard = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Mutation error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update order status",
+        description: error.message || "Failed to update order status. You may not have permission to update this order.",
         variant: "destructive",
       });
     },
