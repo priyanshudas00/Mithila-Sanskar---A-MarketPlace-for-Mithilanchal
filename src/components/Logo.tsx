@@ -7,10 +7,11 @@ interface LogoProps {
 }
 
 const Logo = ({ showText = true, size = 'md' }: LogoProps) => {
+  // Mobile: 3x larger (h-24 = 6rem = 96px base), Desktop uses size prop
   const sizeClasses = {
-    sm: 'h-12',
-    md: 'h-16',
-    lg: 'h-20',
+    sm: 'h-24 sm:h-12',
+    md: 'h-24 sm:h-16',
+    lg: 'h-24 sm:h-20',
   };
 
   return (
