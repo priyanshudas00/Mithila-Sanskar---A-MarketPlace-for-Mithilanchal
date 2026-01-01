@@ -5,7 +5,7 @@ import { ShoppingCart, Menu, X, Search, User, Heart, LogOut, LayoutDashboard, Pa
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { siteUrlIsMisconfigured } from "@/lib/config";
-import logoImage from "@/assets/logo.png";
+import Logo from "@/components/Logo";
 
 const Navigation = () => {
   const { user, signOut, isSeller, isAdmin } = useAuth();
@@ -45,17 +45,7 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logoImage} alt="MithilaSanskar Logo" className="h-12 w-auto" />
-            <div className="flex flex-col hidden sm:block">
-              <span className="font-serif font-bold text-xl text-foreground leading-tight">
-                MithilaSanskar
-              </span>
-              <span className="text-[10px] text-muted-foreground tracking-wider uppercase">
-                Culture · Craft · Community
-              </span>
-            </div>
-          </Link>
+          <Logo showText={true} size="md" />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
