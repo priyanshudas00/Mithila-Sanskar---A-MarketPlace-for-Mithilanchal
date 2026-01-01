@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Heart, ShoppingCart, Share2, Truck, Shield, RotateCcw, Star, MapPin, Minus, Plus } from "lucide-react";
+import { Heart, ShoppingCart, Share2, Truck, Shield, RotateCcw, Star, MapPin, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import productPainting from "@/assets/product-painting-1.jpg";
 import artisanImage from "@/assets/artisan-painting.jpg";
@@ -17,6 +17,8 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const [liked, setLiked] = useState(false);
   const { toast } = useToast();
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
   const handleLike = () => {
     setLiked((v) => !v);
@@ -35,6 +37,38 @@ const ProductDetail = () => {
       await navigator.clipboard.writeText(url);
       toast({ title: "Link copied to clipboard" });
     }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.changedTouches[0].screenX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].screenX;
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50;
+    
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        // Swiped left - go to next image
+        setActiveImage((prev) => (prev + 1) % product.images.length);
+      } else {
+        // Swiped right - go to previous image
+        setActiveImage((prev) => (prev - 1 + product.images.length) % product.images.length);
+      }
+    }
+  };
+
+  const goToPrevious = () => {
+    setActiveImage((prev) => (prev - 1 + product.images.length) % product.images.length);
+  };
+
+  const goToNext = () => {
+    setActiveImage((prev) => (prev + 1) % product.images.length);
   };
 
   // Mock product data
@@ -83,26 +117,61 @@ const ProductDetail = () => {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Image Gallery */}
             <div className="space-y-4">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-card shadow-cultural">
+              {/* Main Image with Swipe Support */}
+              <div 
+                className="relative aspect-square rounded-2xl overflow-hidden bg-card shadow-cultural group cursor-grab active:cursor-grabbing"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
                 <img
                   src={product.images[activeImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-opacity duration-300"
+                  draggable={false}
                 />
+                
+                {/* Image Counter */}
+                <div className="absolute top-3 right-3 bg-black/50 text-white text-xs font-medium px-2 py-1 rounded-full">
+                  {activeImage + 1} / {product.images.length}
+                </div>
+                
+                {/* Navigation Arrows */}
+                {product.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={goToPrevious}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={goToNext}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
               </div>
-              <div className="flex gap-4">
-                {product.images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(idx)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                      activeImage === idx ? "border-terracotta" : "border-transparent"
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
+
+              {/* Thumbnail Gallery */}
+              {product.images.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {product.images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImage(idx)}
+                      className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors flex-shrink-0 ${
+                        activeImage === idx ? "border-terracotta" : "border-transparent"
+                      }`}
+                    >
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Info */}

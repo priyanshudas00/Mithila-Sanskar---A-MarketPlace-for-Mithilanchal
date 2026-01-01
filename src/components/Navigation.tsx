@@ -100,23 +100,19 @@ const Navigation = () => {
                   <User className="w-4 h-4" />
                   <span>Profile</span>
                 </Link>
-                <Link to="/orders" className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
-                  <Package className="w-4 h-4" />
-                  <span>My Orders</span>
-                </Link>
-                {isAdmin && (
-                  <Link to="/admin">
-                    <Button variant="outline" size="sm" className="gap-1">
-                      <LayoutDashboard className="w-4 h-4" />
-                      Admin Panel
-                    </Button>
-                  </Link>
-                )}
                 {isSeller && (
                   <Link to="/seller/dashboard">
                     <Button variant="heritage" size="sm" className="gap-1">
                       <Store className="w-4 h-4" />
-                      Seller Dashboard
+                      Run Your Store
+                    </Button>
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link to="/admin">
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <LayoutDashboard className="w-4 h-4" />
+                      Admin
                     </Button>
                   </Link>
                 )}
@@ -130,13 +126,7 @@ const Navigation = () => {
                 <Link to="/auth">
                   <Button variant="heritage" size="sm" className="gap-1">
                     <User className="w-4 h-4" />
-                    Sign In / Register
-                  </Button>
-                </Link>
-                <Link to="/seller/register">
-                  <Button variant="cultural" size="sm" className="gap-1">
-                    <Store className="w-4 h-4" />
-                    Become a Seller
+                    Sign In
                   </Button>
                 </Link>
               </>

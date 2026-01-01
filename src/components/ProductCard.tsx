@@ -34,6 +34,12 @@ const ProductCard = ({
   const [liked, setLiked] = useState(false);
   const { toast } = useToast();
 
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart(id, 1);
+    toast({ title: "Added to cart", description: `${name} added to your cart` });
+  };
+
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault();
     setLiked((v) => !v);
@@ -55,7 +61,7 @@ const ProductCard = ({
         
         {/* Quick Actions */}
         <div className="absolute bottom-4 left-4 right-4 flex gap-2 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-          <Button variant="warm" size="sm" className="flex-1" onClick={() => addToCart.mutate({ productId: id, quantity: 1 })}>
+          <Button variant="warm" size="sm" className="flex-1" onClick={handleAddToCart}>
             <ShoppingCart className="w-4 h-4 mr-1" />
             Add to Cart
           </Button>
