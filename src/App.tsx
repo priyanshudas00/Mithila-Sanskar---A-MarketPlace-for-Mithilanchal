@@ -25,6 +25,7 @@ import Artisans from "./pages/Artisans";
 import Artisan from "./pages/Artisan";
 import Story from "./pages/Story";
 import Profile from "./pages/Profile";
+import Wishlist from "./pages/Wishlist";
 import DebugAuth from "./pages/DebugAuth";
 import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/artisan/:id" element={<Artisan />} />
             <Route path="/story" element={<Story />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/debug/auth" element={<DebugAuth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

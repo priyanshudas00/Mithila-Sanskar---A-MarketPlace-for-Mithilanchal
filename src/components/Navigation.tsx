@@ -227,6 +227,14 @@ const Navigation = () => {
                 <span>Cart</span>
                 {cartCount > 0 && <span className="ml-auto bg-gradient-to-r from-terracotta to-vermilion text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-sm">{cartCount}</span>}
               </Link>
+              <Link
+                to="/wishlist"
+                className="flex items-center gap-3 py-3 px-3 rounded-lg text-foreground hover:bg-muted transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="text-lg">❤️</span>
+                <span>Wishlist</span>
+              </Link>
               {user && (
                 <Link
                   to="/orders"

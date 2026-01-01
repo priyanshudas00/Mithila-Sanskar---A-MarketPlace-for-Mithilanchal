@@ -54,7 +54,7 @@ const Profile = () => {
       items: [
         { icon: Package, label: "My Orders", description: "Track your orders", path: "/orders", emoji: "📦" },
         { icon: ShoppingCart, label: "Cart", description: "View your cart", path: "/cart", emoji: "🛒" },
-        { icon: Heart, label: "Wishlist", description: "Saved items", path: "/shop", emoji: "❤️" },
+        { icon: Heart, label: "Wishlist", description: "Saved items", path: "/wishlist", emoji: "❤️" },
       ]
     },
     {
