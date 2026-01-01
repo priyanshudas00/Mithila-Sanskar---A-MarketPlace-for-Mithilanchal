@@ -43,6 +43,9 @@ const DebugAuth = lazy(() => import("./pages/DebugAuth"));
 // Memoized Mobile Navigation - loaded separately
 const MobileBottomNav = lazy(() => import("@/components/MobileBottomNav"));
 
+// Notification Permission Dialog - lazy loaded
+const NotificationPermissionDialog = lazy(() => import("@/components/NotificationPermissionDialog"));
+
 // Suspense wrapper for consistent loading experience
 const SuspenseWrapper = memo(function SuspenseWrapper({ 
   children 
@@ -120,6 +123,11 @@ const App = () => (
             {/* Mobile Navigation - Lazy loaded */}
             <Suspense fallback={null}>
               <MobileBottomNav />
+            </Suspense>
+            
+            {/* Notification Permission Dialog - Lazy loaded */}
+            <Suspense fallback={null}>
+              <NotificationPermissionDialog />
             </Suspense>
           </BrowserRouter>
         </TooltipProvider>
