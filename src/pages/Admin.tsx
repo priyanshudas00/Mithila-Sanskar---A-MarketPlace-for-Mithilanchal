@@ -78,12 +78,27 @@ const Admin = () => {
     setIsLoading(true);
     
     // Fetch sellers
-    const { data: sellersData } = await supabase
+    const { data: sellersData, error: sellersError } = await supabase
       .from("sellers")
-      .select("*, profiles!sellers_user_id_fkey(email, full_name)")
+      .select(`
+        id,
+        user_id,
+        business_name,
+        village,
+        district,
+        craft_specialty,
+        is_approved,
+        is_verified,
+        created_at,
+        profiles:user_id(email, full_name)
+      `)
       .order("created_at", { ascending: false });
     
-    if (sellersData) setSellers(sellersData as unknown as Seller[]);
+    if (sellersError) {
+      console.error("Error fetching sellers:", sellersError);
+    } else if (sellersData) {
+      setSellers(sellersData as unknown as Seller[]);
+    }
 
     // Fetch products
     const { data: productsData } = await supabase
@@ -285,75 +300,85 @@ const Admin = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {sellers.map((seller) => (
-                        <tr key={seller.id} className="border-t border-border">
-                          <td className="p-4">
-                            <p className="font-medium text-foreground">{seller.business_name}</p>
-                            <p className="text-sm text-muted-foreground">{seller.profiles?.email}</p>
+                      {sellers.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                            No seller requests found
                           </td>
-                          <td className="p-4 text-muted-foreground">
-                            {seller.village}, {seller.district}
-                          </td>
-                          <td className="p-4 text-muted-foreground">{seller.craft_specialty}</td>
-                          <td className="p-4">
-                            <div className="flex items-center gap-2">
-                              {seller.is_approved ? (
-                                <span className="px-2 py-1 text-xs bg-sage/20 text-sage rounded-full">
-                                  Approved
-                                </span>
-                              ) : (
-                                <span className="px-2 py-1 text-xs bg-vermilion/20 text-vermilion rounded-full">
-                                  Pending
-                                </span>
-                              )}
-                              {seller.is_verified && (
-                                <span className="px-2 py-1 text-xs bg-primary/20 text-primary rounded-full">
-                                  Verified
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex items-center gap-2">
-                              {!seller.is_approved ? (
-                                <>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleApproveSeller(seller.id, true)}
-                                  >
-                                    <CheckCircle className="w-4 h-4 mr-1" />
-                                    Approve
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleApproveSeller(seller.id, false)}
-                                  >
-                                    <XCircle className="w-4 h-4" />
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  {!seller.is_verified && (
+                        </tr>
+                      ) : (
+                        sellers.map((seller) => (
+                          <tr key={seller.id} className="border-t border-border">
+                            <td className="p-4">
+                              <p className="font-medium text-foreground">{seller.business_name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {(seller.profiles as any)?.email || "N/A"}
+                              </p>
+                            </td>
+                            <td className="p-4 text-muted-foreground">
+                              {seller.village}, {seller.district}
+                            </td>
+                            <td className="p-4 text-muted-foreground">{seller.craft_specialty}</td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                {seller.is_approved ? (
+                                  <span className="px-2 py-1 text-xs bg-sage/20 text-sage rounded-full">
+                                    Approved
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-1 text-xs bg-vermilion/20 text-vermilion rounded-full">
+                                    Pending
+                                  </span>
+                                )}
+                                {seller.is_verified && (
+                                  <span className="px-2 py-1 text-xs bg-primary/20 text-primary rounded-full">
+                                    Verified
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                {!seller.is_approved ? (
+                                  <>
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      onClick={() => handleVerifySeller(seller.id, true)}
+                                      onClick={() => handleApproveSeller(seller.id, true)}
                                     >
-                                      <Star className="w-4 h-4 mr-1" />
-                                      Verify
+                                      <CheckCircle className="w-4 h-4 mr-1" />
+                                      Approve
                                     </Button>
-                                  )}
-                                  <Button size="sm" variant="ghost">
-                                    <Eye className="w-4 h-4" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => handleApproveSeller(seller.id, false)}
+                                    >
+                                      <XCircle className="w-4 h-4" />
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    {!seller.is_verified && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleVerifySeller(seller.id, true)}
+                                      >
+                                        <Star className="w-4 h-4 mr-1" />
+                                        Verify
+                                      </Button>
+                                    )}
+                                    <Button size="sm" variant="ghost">
+                                      <Eye className="w-4 h-4" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -375,7 +400,14 @@ const Admin = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {products.map((product) => (
+                      {products.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                            No products found
+                          </td>
+                        </tr>
+                      ) : (
+                        products.map((product) => (
                         <tr key={product.id} className="border-t border-border">
                           <td className="p-4">
                             <p className="font-medium text-foreground">{product.name}</p>
@@ -440,7 +472,8 @@ const Admin = () => {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
