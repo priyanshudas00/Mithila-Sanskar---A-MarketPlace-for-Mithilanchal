@@ -20,6 +20,7 @@ const Navigation = () => {
     { name: "🛍️ Shop", path: "/shop" },
     { name: "👨‍🎨 Artisans", path: "/artisans" },
     { name: "📖 Our Story", path: "/story" },
+    { name: "🏪 Become a Seller", path: "/seller/register" },
   ];
 
   const legalLinks = [
@@ -95,6 +96,10 @@ const Navigation = () => {
             
             {user ? (
               <>
+                <Link to="/profile" className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
+                </Link>
                 <Link to="/orders" className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
                   <Package className="w-4 h-4" />
                   <span>My Orders</span>
@@ -204,72 +209,73 @@ const Navigation = () => {
 
             {/* Shopping */}
             <div className="space-y-1 pt-2 border-t border-border">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">Shopping</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">🛒 Shopping</p>
               <Link
                 to="/shop"
-                className="flex items-center gap-2 py-3 px-3 rounded-lg text-foreground hover:bg-muted"
+                className="flex items-center gap-3 py-3 px-3 rounded-lg text-foreground hover:bg-muted transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                <Search className="w-4 h-4" />
-                Search Products
+                <span className="text-lg">🔍</span>
+                <span>Search Products</span>
               </Link>
               <Link
                 to="/cart"
-                className="flex items-center gap-2 py-3 px-3 rounded-lg text-foreground hover:bg-muted"
+                className="flex items-center gap-3 py-3 px-3 rounded-lg text-foreground hover:bg-muted transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                <ShoppingCart className="w-4 h-4" />
-                Cart {cartCount > 0 && <span className="ml-auto bg-vermilion text-cream text-xs px-2 py-0.5 rounded-full">{cartCount}</span>}
+                <span className="text-lg">🛒</span>
+                <span>Cart</span>
+                {cartCount > 0 && <span className="ml-auto bg-gradient-to-r from-terracotta to-vermilion text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-sm">{cartCount}</span>}
               </Link>
               {user && (
                 <Link
                   to="/orders"
-                  className="flex items-center gap-2 py-3 px-3 rounded-lg text-foreground hover:bg-muted"
+                  className="flex items-center gap-3 py-3 px-3 rounded-lg text-foreground hover:bg-muted transition-colors"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Package className="w-4 h-4" />
-                  My Orders
+                  <span className="text-lg">📦</span>
+                  <span>My Orders</span>
                 </Link>
               )}
             </div>
 
             {/* Account Actions */}
             <div className="space-y-2 pt-2 border-t border-border">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">Account</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">👤 Account</p>
               {user ? (
                 <>
                   {isSeller && (
                     <Link to="/seller/dashboard" onClick={() => setIsOpen(false)}>
-                      <Button variant="heritage" size="sm" className="w-full justify-start gap-2">
-                        <Store className="w-4 h-4" />
+                      <Button variant="heritage" size="default" className="w-full justify-start gap-3 h-12">
+                        <span className="text-lg">🏪</span>
                         Seller Dashboard
                       </Button>
                     </Link>
                   )}
                   {isAdmin && (
                     <Link to="/admin" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-                        <LayoutDashboard className="w-4 h-4" />
+                      <Button variant="outline" size="default" className="w-full justify-start gap-3 h-12">
+                        <span className="text-lg">⚙️</span>
                         Admin Panel
                       </Button>
                     </Link>
                   )}
-                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2" onClick={() => { handleSignOut(); setIsOpen(false); }}>
-                    <LogOut className="w-4 h-4" />
+                  <Button variant="ghost" size="default" className="w-full justify-start gap-3 h-12 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => { handleSignOut(); setIsOpen(false); }}>
+                    <span className="text-lg">🚪</span>
                     Sign Out
                   </Button>
                 </>
               ) : (
                 <>
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
-                    <Button variant="heritage" size="sm" className="w-full justify-start gap-2">
-                      <User className="w-4 h-4" />
+                    <Button variant="heritage" size="default" className="w-full justify-start gap-3 h-12">
+                      <span className="text-lg">🔐</span>
                       Sign In / Register
                     </Button>
                   </Link>
                   <Link to="/seller/register" onClick={() => setIsOpen(false)}>
-                    <Button variant="cultural" size="sm" className="w-full justify-start gap-2">
-                      <Store className="w-4 h-4" />
+                    <Button variant="cultural" size="default" className="w-full justify-start gap-3 h-12">
+                      <span className="text-lg">🏪</span>
                       Become a Seller
                     </Button>
                   </Link>
@@ -279,18 +285,31 @@ const Navigation = () => {
 
             {/* Legal Links */}
             <div className="space-y-1 pt-2 border-t border-border">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">Legal & Policies</p>
-              {legalLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className="flex items-center gap-2 py-2 px-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <link.icon className="w-4 h-4" />
-                  {link.name}
-                </Link>
-              ))}
+              <p className="text-xs text-muted-foreground uppercase tracking-wider px-2 pb-1">📋 Legal & Policies</p>
+              <Link
+                to="/privacy-policy"
+                className="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <span>🔒</span>
+                Privacy Policy
+              </Link>
+              <Link
+                to="/terms-of-service"
+                className="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <span>📜</span>
+                Terms of Service
+              </Link>
+              <Link
+                to="/sellers-agreement"
+                className="flex items-center gap-3 py-2.5 px-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <span>🤝</span>
+                Sellers Agreement
+              </Link>
             </div>
           </div>
         </div>
