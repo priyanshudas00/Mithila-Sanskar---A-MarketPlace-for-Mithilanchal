@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { getSiteOrigin } from "@/lib/config";
 
 interface AuthContextType {
   user: User | null;
@@ -99,8 +100,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${getSiteOrigin()}/`;
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -124,7 +126,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithProvider = async (provider: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${getSiteOrigin()}/`;
     try {
       const result = await supabase.auth.signInWithOAuth({
         provider: provider as any,

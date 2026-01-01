@@ -40,7 +40,7 @@ Cloudflare Pages (production) setup
 
 1. In Cloudflare Pages, open your project and go to **Settings → Environment variables**.
 2. Add the variable `VITE_GOOGLE_CLIENT_ID` with the Google OAuth Client ID (e.g., `1095...apps.googleusercontent.com`).
-3. Add any other required env vars (e.g., `VITE_SUPABASE_URL`) if not already set.
+3. Add any other required env vars (e.g., `VITE_SUPABASE_URL`). Additionally, set `VITE_SITE_URL` to your site origin (e.g., `https://mithilasanskar.shop`) so the app and Supabase use the correct production domain.
 4. Redeploy the site. Cloudflare will inject env vars at build-time for Vite prefixed with `VITE_`.
 
 Notes:

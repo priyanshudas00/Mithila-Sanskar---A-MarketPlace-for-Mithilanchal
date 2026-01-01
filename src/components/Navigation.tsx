@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Menu, X, Search, User, Heart, LogOut, LayoutDashboard, Package } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/hooks/useCart";
+import { siteUrlIsMisconfigured } from "@/lib/config";
 
 const Navigation = () => {
   const { user, signOut, isSeller, isAdmin } = useAuth();
@@ -11,6 +12,7 @@ const Navigation = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const navLinks = [
@@ -21,6 +23,7 @@ const Navigation = () => {
   ];
 
   const showGoogleBanner = !googleClientId && window.location.hostname === 'mithilasanskar.shop';
+  const showSiteUrlWarning = siteUrlIsMisconfigured() && window.location.hostname === 'mithilasanskar.shop';
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -157,6 +160,14 @@ const Navigation = () => {
         <div className="bg-vermilion/10 border-t border-vermilion/20 text-vermilion text-sm py-2 text-center">
           <div className="container mx-auto px-4">
             Google Sign-In seems to be not configured for this deployment. Set <code>VITE_GOOGLE_CLIENT_ID</code> in Cloudflare Pages environment variables and enable Google in Supabase Auth Providers.
+          </div>
+        </div>
+      )}
+
+      {showSiteUrlWarning && (
+        <div className="bg-amber-100 border-t border-amber-200 text-amber-800 text-sm py-2 text-center">
+          <div className="container mx-auto px-4">
+            The configured <code>VITE_SITE_URL</code> appears to point to <strong>localhost</strong> or does not match the current domain. Update your Supabase Auth "Site URL" and production environment variable to your production domain (e.g., <code>https://mithilasanskar.shop</code>).
           </div>
         </div>
       )}

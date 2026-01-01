@@ -8,6 +8,7 @@ import { Heart, ShoppingCart, Share2, Truck, Shield, RotateCcw, Star, MapPin, Mi
 import { useCart } from "@/hooks/useCart";
 import productPainting from "@/assets/product-painting-1.jpg";
 import artisanImage from "@/assets/artisan-painting.jpg";
+import { getSiteOrigin } from "@/lib/config";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -23,7 +24,7 @@ const ProductDetail = () => {
   };
 
   const handleShare = async () => {
-    const url = window.location.href;
+    const url = `${getSiteOrigin()}${window.location.pathname}${window.location.search}`;
     if ((navigator as any).share) {
       try {
         await (navigator as any).share({ title: product.name, url });
