@@ -73,12 +73,12 @@ const Navigation = () => {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-4">
-            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/shop" className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Search products">
               <Search className="w-5 h-5" />
-            </button>
-            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+            </Link>
+            <Link to="/shop" className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Wishlist">
               <Heart className="w-5 h-5" />
-            </button>
+            </Link>
             <Link to="/cart" className="p-2 text-muted-foreground hover:text-foreground transition-colors relative">
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && (

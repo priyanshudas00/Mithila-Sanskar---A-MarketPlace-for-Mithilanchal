@@ -29,7 +29,7 @@ const CallToAction = () => {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Link to="/seller">
+            <Link to="/seller/register">
               <Button 
                 size="xl" 
                 variant="outline"

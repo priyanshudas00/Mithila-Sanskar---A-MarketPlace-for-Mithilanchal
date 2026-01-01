@@ -1,7 +1,15 @@
 import { Link } from "react-router-dom";
 import { MapPin, Phone, Mail, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Footer = () => {
+  const { toast } = useToast();
+
+  const handleSocialClick = (e: React.MouseEvent, platform: string) => {
+    e.preventDefault();
+    toast({ title: "Coming Soon", description: `Follow us on ${platform} — link coming soon!` });
+  };
+
   return (
     <footer className="bg-earth text-cream cultural-pattern">
       {/* Main Footer */}
@@ -27,16 +35,16 @@ const Footer = () => {
               a family, preserves a tradition, and carries a story.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-terracotta transition-colors">
+              <a href="#" onClick={(e) => handleSocialClick(e, 'Facebook')} className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-terracotta transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-terracotta transition-colors">
+              <a href="#" onClick={(e) => handleSocialClick(e, 'Instagram')} className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-terracotta transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-terracotta transition-colors">
+              <a href="#" onClick={(e) => handleSocialClick(e, 'Twitter')} className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-terracotta transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-terracotta transition-colors">
+              <a href="#" onClick={(e) => handleSocialClick(e, 'YouTube')} className="w-10 h-10 rounded-full bg-cream/10 flex items-center justify-center hover:bg-terracotta transition-colors">
                 <Youtube className="w-5 h-5" />
               </a>
             </div>

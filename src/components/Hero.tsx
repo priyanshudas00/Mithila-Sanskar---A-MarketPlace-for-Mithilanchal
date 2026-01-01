@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-mithila-art.jpg";
 
 const Hero = () => {
+  const { toast } = useToast();
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Pattern */}
@@ -48,7 +50,12 @@ const Hero = () => {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <Button variant="heritage" size="xl" className="gap-2">
+              <Button 
+                variant="heritage" 
+                size="xl" 
+                className="gap-2"
+                onClick={() => toast({ title: "Coming Soon", description: "Our story video is coming soon!" })}
+              >
                 <Play className="w-5 h-5" />
                 Watch Our Story
               </Button>

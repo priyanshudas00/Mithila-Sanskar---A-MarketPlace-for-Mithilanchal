@@ -1,6 +1,7 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { artisans } from "@/lib/artisans";
-import { Link } from "react-router-dom";
 
 const Artisan = () => {
   const { id } = useParams();
@@ -8,16 +9,24 @@ const Artisan = () => {
 
   if (!artisan) {
     return (
-      <div className="container mx-auto px-4 py-20">
-        <h2 className="font-serif text-2xl">Artisan not found</h2>
-        <p className="text-muted-foreground mt-2">We couldn't find the artisan you're looking for.</p>
-        <Link to="/artisans" className="text-primary hover:underline mt-4 inline-block">Back to artisans</Link>
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="pt-24 pb-20">
+          <div className="container mx-auto px-4">
+            <h2 className="font-serif text-2xl">Artisan not found</h2>
+            <p className="text-muted-foreground mt-2">We couldn't find the artisan you're looking for.</p>
+            <Link to="/artisans" className="text-primary hover:underline mt-4 inline-block">Back to artisans</Link>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <section className="py-20">
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <main className="pt-24 pb-20">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
@@ -40,7 +49,9 @@ const Artisan = () => {
           </div>
         </div>
       </div>
-    </section>
+      </main>
+      <Footer />
+    </div>
   );
 };
 

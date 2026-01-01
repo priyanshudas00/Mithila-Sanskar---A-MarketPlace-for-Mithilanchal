@@ -1,9 +1,13 @@
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import ArtisanCard from "@/components/ArtisanCard";
 import { artisans } from "@/lib/artisans";
 
 const Artisans = () => {
   return (
-    <section className="py-20">
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <main className="pt-24 pb-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="font-serif text-4xl text-foreground">Our Artisans</h1>
@@ -19,7 +23,9 @@ const Artisans = () => {
           ))}
         </div>
       </div>
-    </section>
+      </main>
+      <Footer />
+    </div>
   );
 };
 
