@@ -263,6 +263,15 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         // Limit precache size
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+        // Import custom service worker scripts
+        importScripts: [],
+        // Additional service worker configuration
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/],
+      },
+      // Inject custom service worker code for push notifications
+      injectManifest: {
+        injectionPoint: undefined,
       },
       devOptions: {
         enabled: false, // Disable in dev for faster reload

@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/contexts/NotificationContext";
+import { NotificationTemplates } from "@/lib/notifications";
 import { 
   Users, Package, ShoppingBag, TrendingUp, CheckCircle, XCircle, 
   Star, Eye, BarChart3
@@ -48,6 +50,7 @@ const Admin = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { sendNotification } = useNotifications();
   
   const [sellers, setSellers] = useState<Seller[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -173,6 +176,18 @@ const Admin = () => {
     } else {
       toast({ title: "Success", description: `Seller ${approve ? "approved" : "rejected"}` });
       
+      // Send notification for seller approval/rejection
+      if (approve) {
+        await sendNotification(NotificationTemplates.sellerApproved());
+      } else {
+        await sendNotification({
+          title: "Seller Rejected",
+          body: "A seller application has been rejected.",
+          icon: "/icon-192x192.png",
+          tag: "seller-rejected",
+        });
+      }
+      
       // Add seller role if approving
       if (approve) {
         const seller = sellers.find(s => s.id === sellerId);
@@ -198,6 +213,19 @@ const Admin = () => {
       toast({ title: "Error", description: "Failed to update product", variant: "destructive" });
     } else {
       toast({ title: "Success", description: `Product ${approve ? "approved" : "rejected"}` });
+      
+      // Send notification for product approval/rejection
+      if (approve) {
+        await sendNotification(NotificationTemplates.productApproved("Product"));
+      } else {
+        await sendNotification({
+          title: "Product Rejected",
+          body: "A product has been rejected by admin.",
+          icon: "/icon-192x192.png",
+          tag: "product-rejected",
+        });
+      }
+      
       fetchData();
     }
   };
@@ -212,6 +240,17 @@ const Admin = () => {
       toast({ title: "Error", description: "Failed to update product", variant: "destructive" });
     } else {
       toast({ title: "Success", description: `Product ${featured ? "featured" : "unfeatured"}` });
+      
+      // Send notification for product featuring
+      if (featured) {
+        await sendNotification({
+          title: "Product Featured! ⭐",
+          body: "A product has been added to featured section.",
+          icon: "/icon-192x192.png",
+          tag: "product-featured",
+        });
+      }
+      
       fetchData();
     }
   };
@@ -226,6 +265,17 @@ const Admin = () => {
       toast({ title: "Error", description: "Failed to update seller", variant: "destructive" });
     } else {
       toast({ title: "Success", description: `Seller ${verified ? "verified" : "unverified"}` });
+      
+      // Send notification for seller verification
+      if (verified) {
+        await sendNotification({
+          title: "Seller Verified! ✓",
+          body: "A seller has been verified and marked as trusted.",
+          icon: "/icon-192x192.png",
+          tag: "seller-verified",
+        });
+      }
+      
       fetchData();
     }
   };

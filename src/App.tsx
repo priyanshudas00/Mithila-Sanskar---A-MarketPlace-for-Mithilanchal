@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import PageLoader from "@/components/PageLoader";
 import { queryClient } from "@/lib/queryClient";
@@ -59,15 +60,16 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider delayDuration={300}>
-          <Toaster />
-          <Sonner 
-            position="top-center"
-            closeButton
-            richColors
-            duration={4000}
-          />
-          <BrowserRouter>
+        <NotificationProvider>
+          <TooltipProvider delayDuration={300}>
+            <Toaster />
+            <Sonner 
+              position="top-center"
+              closeButton
+              richColors
+              duration={4000}
+            />
+            <BrowserRouter>
             <ErrorBoundary>
               <Routes>
                 {/* Public Routes - High Priority */}
@@ -121,9 +123,10 @@ const App = () => (
             </Suspense>
           </BrowserRouter>
         </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
+      </NotificationProvider>
+    </AuthProvider>
+  </QueryClientProvider>
+</ErrorBoundary>
 );
 
 export default App;

@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/contexts/NotificationContext";
+import { NotificationTemplates } from "@/lib/notifications";
 import { 
   LayoutDashboard, Package, Plus, Settings, LogOut, 
   TrendingUp, IndianRupee, ShoppingBag, Eye, Edit, Trash2,
@@ -20,6 +22,7 @@ const SellerDashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { sendNotification } = useNotifications();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'settings'>('overview');
 
@@ -97,14 +100,28 @@ const SellerDashboard = () => {
         throw error;
       }
       
-      return data;
+      return { data, newStatus };
     },
-    onSuccess: () => {
+    onSuccess: async ({ newStatus }) => {
       queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
       toast({
         title: "Status Updated",
         description: "Order status has been updated successfully.",
       });
+      
+      // Send notification based on new status
+      if (newStatus === 'shipped') {
+        await sendNotification(NotificationTemplates.orderShipped("order"));
+      } else if (newStatus === 'delivered') {
+        await sendNotification(NotificationTemplates.orderDelivered("order"));
+      } else if (newStatus === 'processing') {
+        await sendNotification({
+          title: "Order Processing",
+          body: "Your order is now being processed.",
+          icon: "/icon-192x192.png",
+          tag: "order-processing",
+        });
+      }
     },
     onError: (error: any) => {
       console.error('Mutation error:', error);

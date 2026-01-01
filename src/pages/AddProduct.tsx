@@ -11,12 +11,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/contexts/NotificationContext";
+import { NotificationTemplates } from "@/lib/notifications";
 import { ArrowLeft, Upload, X } from "lucide-react";
 
 const AddProduct = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { sendNotification } = useNotifications();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -174,6 +177,9 @@ const AddProduct = () => {
         title: "Product Added!",
         description: "Your product has been submitted for approval.",
       });
+      
+      // Send notification for product submission
+      await sendNotification(NotificationTemplates.productSubmitted(formData.name));
       
       navigate("/seller/dashboard");
     } catch (error: any) {

@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import heroImage from "@/assets/hero-mithila-art.jpg";
 import SignInWithGoogle from "@/components/SignInWithGoogle";
+import { useNotifications } from "@/contexts/NotificationContext";
+import { NotificationTemplates } from "@/lib/notifications";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -23,6 +25,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { addToCart } = useCart();
+  const { sendNotification, requestPermission } = useNotifications();
 
   // Handle post-login redirect and auto add-to-cart
   useEffect(() => {
@@ -65,6 +68,9 @@ const Auth = () => {
             title: "Welcome back!",
             description: "You have successfully logged in.",
           });
+          // Request notification permission and send welcome notification
+          await requestPermission();
+          await sendNotification(NotificationTemplates.welcome());
           // Navigation will be handled by useEffect when user is set
         }
       } else {
@@ -98,6 +104,9 @@ const Auth = () => {
             title: "Welcome to MithilaSanskar!",
             description: "Your account has been created successfully.",
           });
+          // Request notification permission and send welcome notification
+          await requestPermission();
+          await sendNotification(NotificationTemplates.welcome());
           // Navigation will be handled by useEffect when user is set
         }
       }

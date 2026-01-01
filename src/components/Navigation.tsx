@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Menu, X, Search, User, Heart, LogOut, LayoutDashboard, Package, Store, FileText, Shield, ScrollText, Handshake } from "lucide-react";
+import { ShoppingCart, Menu, X, Search, User, LogOut, LayoutDashboard, Store, Shield, ScrollText, Handshake } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/hooks/useCart";
 import { siteUrlIsMisconfigured } from "@/lib/config";
 import Logo from "@/components/Logo";
+import NotificationBell from "@/components/NotificationBell";
 
 const Navigation = () => {
   const { user, signOut, isSeller, isAdmin } = useAuth();
@@ -89,6 +90,9 @@ const Navigation = () => {
               )}
             </Link>
             
+            {/* Notification Bell */}
+            <NotificationBell />
+            
             {user ? (
               <>
                 <Link to="/profile" className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
@@ -136,8 +140,10 @@ const Navigation = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button - Cart is in bottom nav, only show menu toggle */}
+          {/* Mobile Menu Button - Cart is in bottom nav, only show notification + menu toggle */}
           <div className="md:hidden flex items-center gap-1">
+            {/* Mobile Notification Bell */}
+            <NotificationBell />
             <button
               className="p-2.5 rounded-lg hover:bg-muted transition-colors"
               onClick={() => setIsOpen(!isOpen)}

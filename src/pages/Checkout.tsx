@@ -10,6 +10,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCart, CartItem } from "@/hooks/useCart";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/contexts/NotificationContext";
+import { NotificationTemplates } from "@/lib/notifications";
 import { MapPin, CreditCard, Truck, CheckCircle } from "lucide-react";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -30,6 +32,7 @@ const Checkout = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { sendNotification } = useNotifications();
   
   const [step, setStep] = useState(1);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -165,6 +168,9 @@ const Checkout = () => {
 
     await supabase.from("order_items").insert(orderItems);
     clearCart.mutate();
+    
+    // Send notification to user about order placement
+    await sendNotification(NotificationTemplates.orderPlaced(order.id));
     
     setIsLoading(false);
     navigate(`/order-success/${order.id}`);
