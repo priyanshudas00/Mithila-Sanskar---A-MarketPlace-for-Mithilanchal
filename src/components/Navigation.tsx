@@ -12,12 +12,15 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Shop", path: "/shop" },
     { name: "Artisans", path: "/artisans" },
     { name: "Our Story", path: "/story" },
   ];
+
+  const showGoogleBanner = !googleClientId && window.location.hostname === 'mithilasanskar.shop';
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -148,6 +151,15 @@ const Navigation = () => {
           </div>
         </div>
       </div>
+
+      {/* Google sign-in misconfiguration banner for production */}
+      {showGoogleBanner && (
+        <div className="bg-vermilion/10 border-t border-vermilion/20 text-vermilion text-sm py-2 text-center">
+          <div className="container mx-auto px-4">
+            Google Sign-In seems to be not configured for this deployment. Set <code>VITE_GOOGLE_CLIENT_ID</code> in Cloudflare Pages environment variables and enable Google in Supabase Auth Providers.
+          </div>
+        </div>
+      )}
 
       {/* Mobile Menu */}
       {isOpen && (

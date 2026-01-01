@@ -24,6 +24,7 @@ import SellersAgreement from "./pages/SellersAgreement";
 import Artisans from "./pages/Artisans";
 import Artisan from "./pages/Artisan";
 import Story from "./pages/Story";
+import DebugAuth from "./pages/DebugAuth";
 import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/artisans" element={<Artisans />} />
             <Route path="/artisan/:id" element={<Artisan />} />
             <Route path="/story" element={<Story />} />
+            <Route path="/debug/auth" element={<DebugAuth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <MobileBottomNav />

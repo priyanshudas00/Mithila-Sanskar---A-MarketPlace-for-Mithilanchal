@@ -36,6 +36,18 @@ VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 
 If you see the error `Unsupported provider: provider is not enabled`, enable Google in Supabase as described above.
 
+Cloudflare Pages (production) setup
+
+1. In Cloudflare Pages, open your project and go to **Settings → Environment variables**.
+2. Add the variable `VITE_GOOGLE_CLIENT_ID` with the Google OAuth Client ID (e.g., `1095...apps.googleusercontent.com`).
+3. Add any other required env vars (e.g., `VITE_SUPABASE_URL`) if not already set.
+4. Redeploy the site. Cloudflare will inject env vars at build-time for Vite prefixed with `VITE_`.
+
+Notes:
+- Make sure the Google OAuth consent screen and OAuth client include the Supabase callback URL: `https://<your-supabase-project>.supabase.co/auth/v1/callback`.
+- In Supabase Auth Providers, enable Google and paste the Client ID and Client Secret there.
+
+
 ## What technologies are used for this project?
 
 This project is built with:
