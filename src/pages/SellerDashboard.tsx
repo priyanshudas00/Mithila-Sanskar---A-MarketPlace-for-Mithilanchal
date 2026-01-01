@@ -13,13 +13,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationTemplates } from "@/lib/notifications";
 import { 
-  LayoutDashboard, Package, Plus, Settings, LogOut, 
+  LayoutDashboard, Package, Plus, Settings, ArrowLeft, 
   TrendingUp, IndianRupee, ShoppingBag, Eye, Edit, Trash2,
   AlertCircle, CheckCircle2
 } from "lucide-react";
 
 const SellerDashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { sendNotification } = useNotifications();
@@ -133,9 +133,8 @@ const SellerDashboard = () => {
     },
   });
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/');
+  const handleBack = () => {
+    navigate(-1);
   };
 
   if (!user) {
@@ -213,8 +212,8 @@ const SellerDashboard = () => {
                   Pending Approval
                 </span>
               )}
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4" />
+              <Button variant="ghost" size="sm" onClick={handleBack}>
+                <ArrowLeft className="w-4 h-4" />
               </Button>
             </div>
           </div>
