@@ -8,7 +8,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signInWithProvider: (provider: string) => Promise<void>;
+  signInWithProvider: (provider: string) => Promise<{ error: any } | undefined>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
   isSeller: boolean;
@@ -70,6 +70,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
+    // If user was redirected back from OAuth (access_token in hash), exchange it for a session
+    const hash = window.location.hash || window.location.href;
+    if (hash.includes('access_token') || hash.includes('provider_token') || hash.includes('refresh_token')) {
+      // getSessionFromUrl will parse the URL fragment and set the session
+      supabase.auth.getSessionFromUrl().then(({ data, error }) => {
+        if (error) {
+          console.error('Error processing OAuth redirect:', error);
+          return;
+        }
+        if (data?.session) {
+          setSession(data.session);
+          setUser(data.session.user ?? null);
+          checkUserRoles(data.session.user.id);
+          // Clean URL to remove tokens
+          try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) { /* ignore */ }
+        }
+      }).catch((err) => console.error('getSessionFromUrl failed', err));
+    }
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -99,12 +118,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithProvider = async (provider: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    await supabase.auth.signInWithOAuth({
-      provider: provider as any,
-      options: {
-        redirectTo: redirectUrl,
-      },
-    });
+    try {
+      const result = await supabase.auth.signInWithOAuth({
+        provider: provider as any,
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
+      return { error: (result as any).error };
+    } catch (error: any) {
+      // Return error object so the UI can surface actionable messages
+      return { error };
+    }
   };
 
   const signOut = async () => {

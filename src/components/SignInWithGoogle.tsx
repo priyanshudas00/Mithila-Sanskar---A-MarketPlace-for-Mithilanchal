@@ -15,11 +15,30 @@ const SignInWithGoogle = () => {
   const { signInWithProvider } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      await signInWithProvider('google');
+      const res = await signInWithProvider('google');
+      const err = (res as any)?.error;
+
+      if (err) {
+        // Supabase returns a 400 with message when provider disabled
+        const msg = err?.message || err?.msg || JSON.stringify(err);
+        if (msg?.toLowerCase?.().includes('unsupported provider') || (err?.error_code === 'validation_failed')) {
+          toast({
+            title: 'Google Sign-In not configured',
+            description: 'Enable Google provider in Supabase (Auth → Providers → Google) and add Client ID & Secret.',
+            variant: 'destructive',
+          });
+        } else {
+          toast({ title: 'Sign in failed', description: msg || 'Unexpected error', variant: 'destructive' });
+        }
+        setLoading(false);
+        return;
+      }
+
       toast({ title: 'Redirecting to Google...', description: 'Complete the sign-in flow in the popup or new window.' });
     } catch (error: any) {
       toast({ title: 'Sign in failed', description: error?.message || 'Unexpected error', variant: 'destructive' });
@@ -27,18 +46,26 @@ const SignInWithGoogle = () => {
     }
   };
 
+  const disabled = !googleClientId;
+
   return (
-    <button
-      aria-label="Sign in with Google"
-      onClick={handleGoogleSignIn}
-      className={`w-full inline-flex items-center justify-center gap-3 bg-white border border-border text-sm rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-all ${loading ? 'opacity-70 cursor-wait' : 'hover:border-terracotta hover:ring-2 hover:ring-terracotta/20'}`}
-      disabled={loading}
-    >
-      <GoogleIcon />
-      <span className="text-foreground font-medium">Sign in with Google</span>
-      {/* subtle Mithila accent on the far right */}
-      <span className="ml-auto hidden sm:inline-block w-2 h-2 rounded-full bg-terracotta" />
-    </button>
+    <div>
+      <button
+        aria-label="Sign in with Google"
+        onClick={handleGoogleSignIn}
+        className={`w-full inline-flex items-center justify-center gap-3 bg-white border border-border text-sm rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-all ${loading || disabled ? 'opacity-70 cursor-not-allowed' : 'hover:border-terracotta hover:ring-2 hover:ring-terracotta/20'}`}
+        disabled={loading || disabled}
+        title={disabled ? 'Google sign-in not configured (set VITE_GOOGLE_CLIENT_ID in .env)' : undefined}
+      >
+        <GoogleIcon />
+        <span className="text-foreground font-medium">Sign in with Google</span>
+        {/* subtle Mithila accent on the far right */}
+        <span className="ml-auto hidden sm:inline-block w-2 h-2 rounded-full bg-terracotta" />
+      </button>
+      {disabled && (
+        <p className="text-xs text-muted-foreground mt-2">Google sign-in is disabled locally — set <code>VITE_GOOGLE_CLIENT_ID</code> or enable provider in Supabase.</p>
+      )}
+    </div>
   );
 };
 
