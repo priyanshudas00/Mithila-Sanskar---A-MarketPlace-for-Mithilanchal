@@ -36,13 +36,13 @@ const Wishlist = () => {
     );
   }
 
-  const filteredItems = wishlistItems.filter((item: any) =>
-    item.products?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredItems = wishlistItems.filter((item) =>
+    (item as { products?: { name?: string } }).products?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddToCart = (item: any) => {
-    if (item.products?.stock_quantity > 0) {
-      addToCart(item.product_id, 1);
+  const handleAddToCart = (item: { product_id: string; products?: { stock_quantity?: number } }) => {
+    if (item.products?.stock_quantity && item.products.stock_quantity > 0) {
+      addToCart.mutate({ productId: item.product_id, quantity: 1 });
       toast({ title: "Added to cart" });
     } else {
       toast({ title: "Product out of stock", variant: "destructive" });
@@ -114,8 +114,8 @@ const Wishlist = () => {
               </Card>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredItems.map((item: any) => (
-                  <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                {filteredItems.map((item) => (
+                  <Card key={(item as { id: string }).id} className="overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="relative bg-muted h-48 flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-4xl mb-2">🎨</div>

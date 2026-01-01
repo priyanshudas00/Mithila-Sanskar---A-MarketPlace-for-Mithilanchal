@@ -16,15 +16,10 @@ self.addEventListener('push', (event) => {
       body: data.body || 'New notification from MithilaSanskar',
       icon: data.icon || '/logo.png',
       badge: data.badge || '/pwa-192x192.png',
-      image: data.image,
       data: data.data || {},
       tag: data.tag || 'mithila-notification',
       vibrate: [200, 100, 200],
       requireInteraction: data.requireInteraction || false,
-      actions: data.actions || [
-        { action: 'view', title: 'View' },
-        { action: 'dismiss', title: 'Dismiss' },
-      ],
     };
 
     event.waitUntil(

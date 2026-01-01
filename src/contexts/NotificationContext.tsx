@@ -60,6 +60,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
     refreshNotifications();
     setLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSupported]);
 
   // Subscribe to push notifications when user is logged in and permission is granted

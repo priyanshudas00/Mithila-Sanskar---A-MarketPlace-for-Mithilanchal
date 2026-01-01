@@ -117,7 +117,7 @@ export const subscribeToPushNotifications = async (): Promise<PushSubscription |
         const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: convertedVapidKey,
+          applicationServerKey: convertedVapidKey as BufferSource,
         });
       }
     }
@@ -163,7 +163,6 @@ export const showLocalNotification = async (payload: NotificationPayload): Promi
       body: payload.body,
       icon: payload.icon || '/logo.png',
       badge: payload.badge || '/pwa-192x192.png',
-      image: payload.image,
       data: {
         url: payload.data?.url || '/',
         ...payload.data,
@@ -171,7 +170,6 @@ export const showLocalNotification = async (payload: NotificationPayload): Promi
       tag: payload.tag || payload.type,
       requireInteraction: payload.requireInteraction ?? false,
       vibrate: [200, 100, 200],
-      actions: getNotificationActions(payload.type),
     });
 
     return true;
@@ -194,8 +192,16 @@ export const showLocalNotification = async (payload: NotificationPayload): Promi
   }
 };
 
-// Get notification actions based on type
-function getNotificationActions(type: NotificationType): NotificationAction[] {
+// Notification actions interface (for future use with supported platforms)
+interface NotificationAction {
+  action: string;
+  title: string;
+  icon?: string;
+}
+
+// Get notification actions based on type (for future use)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _getNotificationActions(type: NotificationType): NotificationAction[] {
   switch (type) {
     case 'order_placed':
     case 'order_shipped':
