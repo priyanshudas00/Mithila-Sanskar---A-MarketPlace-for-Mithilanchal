@@ -83,6 +83,32 @@ const SellerDashboard = () => {
     enabled: !!seller,
   });
 
+  // Update order item status mutation
+  const updateOrderStatus = useMutation({
+    mutationFn: async ({ orderItemId, newStatus }: { orderItemId: string; newStatus: string }) => {
+      const { error } = await supabase
+        .from('order_items')
+        .update({ status: newStatus })
+        .eq('id', orderItemId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
+      toast({
+        title: "Status Updated",
+        description: "Order status has been updated successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update order status",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleLogout = async () => {
     await signOut();
     navigate('/');
@@ -416,6 +442,7 @@ const SellerDashboard = () => {
                           <th className="text-left p-4 font-medium">Qty</th>
                           <th className="text-left p-4 font-medium">Amount</th>
                           <th className="text-left p-4 font-medium">Status</th>
+                          <th className="text-left p-4 font-medium">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -429,10 +456,45 @@ const SellerDashboard = () => {
                               <span className={`text-xs px-2 py-1 rounded-full ${
                                 item.status === 'delivered' ? 'bg-sage/20 text-sage' :
                                 item.status === 'shipped' ? 'bg-golden/20 text-golden' :
+                                item.status === 'processing' ? 'bg-blue-500/20 text-blue-500' :
                                 'bg-muted text-muted-foreground'
                               }`}>
                                 {item.status}
                               </span>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex gap-2">
+                                {item.status === 'pending' && (
+                                  <Button
+                                    variant="heritage"
+                                    size="sm"
+                                    onClick={() => updateOrderStatus.mutate({ orderItemId: item.id, newStatus: 'processing' })}
+                                  >
+                                    Mark Processing
+                                  </Button>
+                                )}
+                                {item.status === 'processing' && (
+                                  <Button
+                                    variant="cultural"
+                                    size="sm"
+                                    onClick={() => updateOrderStatus.mutate({ orderItemId: item.id, newStatus: 'shipped' })}
+                                  >
+                                    Mark Shipped
+                                  </Button>
+                                )}
+                                {item.status === 'shipped' && (
+                                  <Button
+                                    variant="warm"
+                                    size="sm"
+                                    onClick={() => updateOrderStatus.mutate({ orderItemId: item.id, newStatus: 'delivered' })}
+                                  >
+                                    Mark Delivered
+                                  </Button>
+                                )}
+                                {item.status === 'delivered' && (
+                                  <span className="text-sm text-sage">✓ Completed</span>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
