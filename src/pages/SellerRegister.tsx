@@ -10,12 +10,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Store, MapPin, Clock, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const SellerRegister = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
     businessName: "",
@@ -33,8 +35,8 @@ const SellerRegister = () => {
     
     if (!user) {
       toast({
-        title: "Login Required",
-        description: "Please login or create an account first.",
+        title: t("seller.register.loginRequiredTitle"),
+        description: t("seller.register.loginRequiredDesc"),
         variant: "destructive",
       });
       navigate("/auth");
@@ -53,8 +55,8 @@ const SellerRegister = () => {
       
       if (existingSeller) {
         toast({
-          title: "Already Registered",
-          description: "You are already registered as a seller.",
+          title: t("seller.register.alreadyTitle"),
+          description: t("seller.register.alreadyDesc"),
         });
         navigate("/seller/dashboard");
         return;
@@ -92,16 +94,16 @@ const SellerRegister = () => {
       }
       
       toast({
-        title: "Registration Submitted!",
-        description: "Your seller application has been submitted. We'll review and approve it soon.",
+        title: t("seller.register.submittedTitle"),
+        description: t("seller.register.submittedDesc"),
       });
       
       navigate("/seller/dashboard");
     } catch (error: any) {
       console.error('Registration error:', error);
       toast({
-        title: "Registration Failed",
-        description: error.message || "Something went wrong. Please try again.",
+        title: t("seller.register.failedTitle"),
+        description: error.message || t("seller.register.failedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -115,10 +117,10 @@ const SellerRegister = () => {
         <Navigation />
         <main className="pt-32 pb-20">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="font-serif text-3xl text-foreground mb-4">Join as a Seller</h1>
-            <p className="text-muted-foreground mb-8">Please login or create an account to register as a seller.</p>
+            <h1 className="font-serif text-3xl text-foreground mb-4">{t("seller.register.guestTitle")}</h1>
+            <p className="text-muted-foreground mb-8">{t("seller.register.guestDesc")}</p>
             <Link to="/auth">
-              <Button variant="cultural" size="lg">Login / Sign Up</Button>
+              <Button variant="cultural" size="lg">{t("seller.register.loginCta")}</Button>
             </Link>
           </div>
         </main>
@@ -135,7 +137,7 @@ const SellerRegister = () => {
         <div className="container mx-auto px-4">
           <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
             <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            {t("seller.register.backHome")}
           </Link>
           
           <div className="max-w-2xl mx-auto">
@@ -144,10 +146,10 @@ const SellerRegister = () => {
                 <Store className="w-8 h-8 text-cream" />
               </div>
               <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-3">
-                Become a Seller
+                {t("seller.register.title")}
               </h1>
               <p className="text-muted-foreground">
-                Share your craft with the world. Join 500+ artisans preserving Mithila's heritage.
+                {t("seller.register.subtitle")}
               </p>
             </div>
             
@@ -155,7 +157,7 @@ const SellerRegister = () => {
               <div className="space-y-2">
                 <Label htmlFor="businessName" className="flex items-center gap-2">
                   <Store className="w-4 h-4" />
-                  Business / Artisan Name *
+                  {t("seller.register.businessName")}
                 </Label>
                 <Input
                   id="businessName"
@@ -170,7 +172,7 @@ const SellerRegister = () => {
                 <div className="space-y-2">
                   <Label htmlFor="village" className="flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    Village *
+                    {t("seller.register.village")}
                   </Label>
                   <Input
                     id="village"
@@ -182,7 +184,7 @@ const SellerRegister = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="district">District</Label>
+                  <Label htmlFor="district">{t("seller.register.district")}</Label>
                   <Input
                     id="district"
                     value={formData.district}
@@ -194,7 +196,7 @@ const SellerRegister = () => {
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="craftSpecialty">Craft Specialty *</Label>
+                  <Label htmlFor="craftSpecialty">{t("seller.register.craftSpecialty")}</Label>
                   <Input
                     id="craftSpecialty"
                     value={formData.craftSpecialty}
@@ -207,7 +209,7 @@ const SellerRegister = () => {
                 <div className="space-y-2">
                   <Label htmlFor="yearsExperience" className="flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    Years of Experience
+                    {t("seller.register.yearsExperience")}
                   </Label>
                   <Input
                     id="yearsExperience"
@@ -223,7 +225,7 @@ const SellerRegister = () => {
               <div className="space-y-2">
                 <Label htmlFor="description" className="flex items-center gap-2">
                   <FileText className="w-4 h-4" />
-                  Short Description *
+                  {t("seller.register.description")}
                 </Label>
                 <Textarea
                   id="description"
@@ -236,7 +238,7 @@ const SellerRegister = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="story">Your Story</Label>
+                <Label htmlFor="story">{t("seller.register.story")}</Label>
                 <Textarea
                   id="story"
                   value={formData.story}
@@ -247,7 +249,7 @@ const SellerRegister = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="upiId">UPI ID (for payments)</Label>
+                <Label htmlFor="upiId">{t("seller.register.upiId")}</Label>
                 <Input
                   id="upiId"
                   value={formData.upiId}
@@ -258,11 +260,11 @@ const SellerRegister = () => {
               </div>
               
               <div className="bg-secondary rounded-lg p-4 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground mb-2">What happens next?</p>
+                <p className="font-medium text-foreground mb-2">{t("seller.register.nextTitle")}</p>
                 <ul className="space-y-1 list-disc list-inside">
-                  <li>Our team will review your application within 24-48 hours</li>
-                  <li>Once approved, you can start listing your products</li>
-                  <li>You'll receive 80% of each sale directly to your account</li>
+                  <li>{t("seller.register.nextReview")}</li>
+                  <li>{t("seller.register.nextList")}</li>
+                  <li>{t("seller.register.nextPayout")}</li>
                 </ul>
               </div>
               
@@ -273,7 +275,7 @@ const SellerRegister = () => {
                 className="w-full"
                 disabled={loading}
               >
-                {loading ? "Submitting..." : "Submit Application"}
+                {loading ? t("seller.register.submitting") : t("seller.register.submit")}
               </Button>
             </form>
           </div>

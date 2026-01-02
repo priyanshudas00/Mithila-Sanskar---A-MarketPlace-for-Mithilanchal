@@ -1,39 +1,41 @@
 import { CheckCircle2, Truck, Shield, Heart, Recycle, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const values = [
   {
     icon: CheckCircle2,
-    title: "100% Authentic",
-    description: "Every product verified by our cultural experts",
+    titleKey: "trust.authentic",
+    descriptionKey: "trust.authenticDesc",
   },
   {
     icon: Users,
-    title: "Artisan Direct",
-    description: "80% of sale goes directly to creators",
+    titleKey: "trust.artisan",
+    descriptionKey: "trust.artisanDesc",
   },
   {
     icon: Heart,
-    title: "Fair Trade",
-    description: "Ethical pricing that respects the craft",
+    titleKey: "trust.fair",
+    descriptionKey: "trust.fairDesc",
   },
   {
     icon: Recycle,
-    title: "Eco-Friendly",
-    description: "Natural dyes and sustainable materials",
+    titleKey: "trust.eco",
+    descriptionKey: "trust.ecoDesc",
   },
   {
     icon: Truck,
-    title: "Pan-India Delivery",
-    description: "Safe shipping with tracking",
+    titleKey: "trust.delivery",
+    descriptionKey: "trust.deliveryDesc",
   },
   {
     icon: Shield,
-    title: "Quality Assured",
-    description: "7-day return on all products",
+    titleKey: "trust.quality",
+    descriptionKey: "trust.qualityDesc",
   },
 ];
 
 const TrustBadges = () => {
+  const { t } = useTranslation();
   return (
     <section className="py-16 bg-muted/50 border-y border-border">
       <div className="container mx-auto px-4">
@@ -46,8 +48,8 @@ const TrustBadges = () => {
               <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-secondary flex items-center justify-center group-hover:bg-terracotta/10 transition-colors duration-300">
                 <value.icon className="w-7 h-7 text-primary group-hover:text-terracotta transition-colors duration-300" />
               </div>
-              <h4 className="font-medium text-foreground mb-1">{value.title}</h4>
-              <p className="text-sm text-muted-foreground">{value.description}</p>
+              <h4 className="font-medium text-foreground mb-1">{t(value.titleKey)}</h4>
+              <p className="text-sm text-muted-foreground">{t(value.descriptionKey)}</p>
             </div>
           ))}
         </div>

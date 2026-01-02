@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductCard from "./ProductCard";
+import { useTranslation } from "react-i18next";
 import productPainting from "@/assets/product-painting-1.jpg";
 import productTextile from "@/assets/product-textile-1.jpg";
 import productTerracotta from "@/assets/product-terracotta-1.jpg";
@@ -56,6 +57,8 @@ const featuredProducts = [
 ];
 
 const FeaturedProducts = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-20 bg-background cultural-pattern">
       <div className="container mx-auto px-4">
@@ -63,19 +66,18 @@ const FeaturedProducts = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
           <div>
             <span className="text-sm font-medium text-primary uppercase tracking-wider">
-              Handpicked for You
+              {t("featured.label")}
             </span>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mt-2">
-              Featured Creations
+              {t("featured.title")}
             </h2>
             <p className="text-muted-foreground mt-3 max-w-xl">
-              Each piece is a labor of love, taking days or weeks to complete using 
-              traditional techniques and natural materials.
+              {t("featured.subtitle")}
             </p>
           </div>
           <Link to="/shop">
             <Button variant="heritage" size="lg">
-              View All Products
+              {t("featured.viewAll")}
             </Button>
           </Link>
         </div>

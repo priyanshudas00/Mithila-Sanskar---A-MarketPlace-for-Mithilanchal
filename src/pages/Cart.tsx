@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Cart = () => {
   const { user } = useAuth();
   const { cartItems, cartTotal, isLoading, updateQuantity, removeItem } = useCart();
+  const { t } = useTranslation();
 
   if (!user) {
     return (
@@ -17,10 +19,10 @@ const Cart = () => {
         <main className="pt-32 pb-20">
           <div className="container mx-auto px-4 text-center">
             <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h1 className="font-serif text-3xl text-foreground mb-4">Your Cart</h1>
-            <p className="text-muted-foreground mb-8">Please login to view your cart.</p>
+            <h1 className="font-serif text-3xl text-foreground mb-4">{t("cart.title")}</h1>
+            <p className="text-muted-foreground mb-8">{t("cart.loginPrompt")}</p>
             <Link to="/auth">
-              <Button variant="cultural" size="lg">Login</Button>
+              <Button variant="cultural" size="lg">{t("cart.loginCta")}</Button>
             </Link>
           </div>
         </main>
@@ -34,7 +36,7 @@ const Cart = () => {
       <Navigation />
       <main className="pt-28 pb-20">
         <div className="container mx-auto px-4">
-          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-8">Shopping Cart</h1>
+          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-8">{t("cart.title")}</h1>
           
           {isLoading ? (
             <div className="text-center py-12">
@@ -43,11 +45,11 @@ const Cart = () => {
           ) : cartItems.length === 0 ? (
             <div className="text-center py-16">
               <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="font-serif text-2xl text-foreground mb-2">Your cart is empty</h2>
-              <p className="text-muted-foreground mb-8">Discover handcrafted treasures from Mithila</p>
+              <h2 className="font-serif text-2xl text-foreground mb-2">{t("cart.emptyTitle")}</h2>
+              <p className="text-muted-foreground mb-8">{t("cart.emptyDesc")}</p>
               <Link to="/shop">
                 <Button variant="cultural" size="lg">
-                  Start Shopping
+                  {t("cart.startShopping")}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
@@ -102,28 +104,28 @@ const Cart = () => {
               
               <div className="lg:col-span-1">
                 <div className="bg-card rounded-xl p-6 shadow-soft sticky top-28">
-                  <h3 className="font-serif text-xl text-foreground mb-4">Order Summary</h3>
+                  <h3 className="font-serif text-xl text-foreground mb-4">{t("cart.summary")}</h3>
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="text-muted-foreground">{t("cart.subtotal")}</span>
                       <span>₹{cartTotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span className="text-sage">Free</span>
+                      <span className="text-muted-foreground">{t("cart.shipping")}</span>
+                      <span className="text-sage">{t("cart.free")}</span>
                     </div>
                     <div className="border-t border-border pt-3 flex justify-between font-medium text-lg">
-                      <span>Total</span>
+                      <span>{t("cart.total")}</span>
                       <span className="font-serif">₹{cartTotal.toLocaleString()}</span>
                     </div>
                   </div>
                   <Link to="/checkout">
                     <Button variant="cultural" size="lg" className="w-full">
-                      Proceed to Checkout
+                      {t("cart.checkout")}
                     </Button>
                   </Link>
                   <p className="text-xs text-muted-foreground text-center mt-4">
-                    80% of your purchase goes directly to artisans
+                    {t("cart.payoutNote")}
                   </p>
                 </div>
               </div>

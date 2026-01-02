@@ -11,6 +11,7 @@ import heroImage from "@/assets/hero-mithila-art.jpg";
 import SignInWithGoogle from "@/components/SignInWithGoogle";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationTemplates } from "@/lib/notifications";
+import { useTranslation } from "react-i18next";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -26,6 +27,7 @@ const Auth = () => {
   const { toast } = useToast();
   const { addToCart } = useCart();
   const { sendNotification, requestPermission } = useNotifications();
+  const { t } = useTranslation();
 
   // Handle post-login redirect and auto add-to-cart
   useEffect(() => {
@@ -59,14 +61,14 @@ const Auth = () => {
         const { error } = await signIn(email, password);
         if (error) {
           toast({
-            title: "Login Failed",
+            title: t("auth.loginFailedTitle"),
             description: error.message,
             variant: "destructive",
           });
         } else {
           toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in.",
+            title: t("auth.loginSuccessTitle"),
+            description: t("auth.loginSuccessDesc"),
           });
           // Request notification permission and send welcome notification
           await requestPermission();
@@ -76,8 +78,8 @@ const Auth = () => {
       } else {
         if (!fullName.trim()) {
           toast({
-            title: "Name Required",
-            description: "Please enter your full name.",
+            title: t("auth.nameRequiredTitle"),
+            description: t("auth.nameRequiredDesc"),
             variant: "destructive",
           });
           setLoading(false);
@@ -88,21 +90,21 @@ const Auth = () => {
         if (error) {
           if (error.message.includes("already registered")) {
             toast({
-              title: "Account Exists",
-              description: "This email is already registered. Please sign in instead.",
+              title: t("auth.accountExistsTitle"),
+              description: t("auth.accountExistsDesc"),
               variant: "destructive",
             });
           } else {
             toast({
-              title: "Sign Up Failed",
+              title: t("auth.signupFailedTitle"),
               description: error.message,
               variant: "destructive",
             });
           }
         } else {
           toast({
-            title: "Welcome to MithilaSanskar!",
-            description: "Your account has been created successfully.",
+            title: t("auth.signupSuccessTitle"),
+            description: t("auth.signupSuccessDesc"),
           });
           // Request notification permission and send welcome notification
           await requestPermission();
@@ -112,8 +114,8 @@ const Auth = () => {
       }
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: t("auth.errorTitle"),
+        description: t("auth.errorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -127,34 +129,33 @@ const Auth = () => {
       <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12">
         <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
           <ArrowLeft className="w-4 h-4" />
-          Back to Home
+          {t("auth.backHome")}
         </Link>
         
         <div className="max-w-md w-full">
           {/* Logo */}
           <div className="flex items-center gap-2 mb-8">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-terracotta to-vermilion flex items-center justify-center">
-              <span className="text-primary-foreground font-serif font-bold text-xl">म</span>
+              <span className="text-primary-foreground font-serif font-bold text-xl">
+                म
+              </span>
             </div>
             <div>
               <span className="font-serif font-bold text-2xl text-foreground">MithilaSanskar</span>
             </div>
           </div>
-          
+
           <h1 className="font-serif text-3xl text-foreground mb-2">
-            {isLogin ? "Welcome Back" : "Join Our Community"}
+            {isLogin ? t("auth.headingLogin") : t("auth.headingSignup")}
           </h1>
           <p className="text-muted-foreground mb-8">
-            {isLogin 
-              ? "Sign in to continue shopping authentic Mithila crafts"
-              : "Create an account to discover handcrafted treasures"
-            }
+            {isLogin ? t("auth.subtextLogin") : t("auth.subtextSignup")}
           </p>
-          
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName">{t("auth.fullName")}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -162,16 +163,16 @@ const Auth = () => {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter your full name"
+                    placeholder={t("auth.fullNamePlaceholder")}
                     className="pl-10 h-12"
                     required={!isLogin}
                   />
                 </div>
               </div>
             )}
-            
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -179,15 +180,15 @@ const Auth = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
+                  placeholder={t("auth.emailPlaceholder")}
                   className="pl-10 h-12"
                   required
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -195,7 +196,7 @@ const Auth = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder={t("auth.passwordPlaceholder")}
                   className="pl-10 pr-10 h-12"
                   required
                   minLength={6}
@@ -209,15 +210,15 @@ const Auth = () => {
                 </button>
               </div>
             </div>
-            
-            <Button 
-              type="submit" 
-              variant="cultural" 
-              size="lg" 
+
+            <Button
+              type="submit"
+              variant="cultural"
+              size="lg"
               className="w-full"
               disabled={loading}
             >
-              {loading ? "Please wait..." : (isLogin ? "Sign In" : "Create Account")}
+              {loading ? t("auth.buttonLoading") : (isLogin ? t("auth.buttonLogin") : t("auth.buttonSignup"))}
             </Button>
           </form>
 
@@ -225,7 +226,7 @@ const Auth = () => {
           <div className="mt-6">
             <div className="flex items-center gap-3 mb-4">
               <hr className="flex-1 border-border" />
-              <span className="text-sm text-muted-foreground">or continue with</span>
+              <span className="text-sm text-muted-foreground">{t("auth.orContinue")}</span>
               <hr className="flex-1 border-border" />
             </div>
             <div>
@@ -239,18 +240,15 @@ const Auth = () => {
               onClick={() => setIsLogin(!isLogin)}
               className="text-primary hover:underline"
             >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : "Already have an account? Sign in"
-              }
+              {isLogin ? t("auth.toggleSignup") : t("auth.toggleLogin")}
             </button>
           </div>
-          
+
           {!isLogin && (
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              Want to sell your crafts?{" "}
+              {t("auth.sellerPrompt")} {" "}
               <Link to="/seller/register" className="text-primary hover:underline font-medium">
-                Register as a Seller
+                {t("auth.sellerCta")}
               </Link>
             </p>
           )}
@@ -261,16 +259,15 @@ const Auth = () => {
       <div className="hidden lg:block lg:flex-1 relative">
         <img
           src={heroImage}
-          alt="Mithila Art"
+          alt={t("auth.heroAlt")}
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-l from-transparent to-earth/30" />
         <div className="absolute bottom-12 left-12 right-12 bg-background/90 backdrop-blur-sm rounded-xl p-6 shadow-cultural">
           <p className="font-serif text-lg text-foreground italic">
-            "When you buy handmade, you're supporting a family, preserving a tradition, 
-            and carrying forward a legacy that's thousands of years old."
+            {t("auth.promiseQuote")}
           </p>
-          <p className="mt-3 text-sm text-muted-foreground">— The MithilaSanskar Promise</p>
+          <p className="mt-3 text-sm text-muted-foreground">— {t("auth.promiseBy")}</p>
         </div>
       </div>
     </div>

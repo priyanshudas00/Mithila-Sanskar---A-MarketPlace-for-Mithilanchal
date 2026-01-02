@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Search, SlidersHorizontal, X, ChevronDown, Loader2 } from "lucide-react";
 import { useProducts, useCategories } from "@/hooks/useProducts";
+import { useTranslation } from "react-i18next";
 
 const regions = [
   "Madhubani",
@@ -25,6 +26,7 @@ const Shop = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [handmadeOnly, setHandmadeOnly] = useState(true);
+  const { t } = useTranslation();
 
   const { data: products = [], isLoading: productsLoading } = useProducts({
     search: searchQuery || undefined,
@@ -73,10 +75,10 @@ const Shop = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-3xl">
               <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mb-4">
-                Shop Authentic Mithila Crafts
+                {t("shopPage.title")}
               </h1>
               <p className="text-muted-foreground text-lg">
-                Discover handcrafted treasures made by skilled artisans from the heart of Mithilanchal
+                {t("shopPage.subtitle")}
               </p>
             </div>
           </div>
@@ -89,7 +91,7 @@ const Shop = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search products, artisans..."
+                placeholder={t("shopPage.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 h-12"
@@ -102,7 +104,7 @@ const Shop = () => {
               className="md:w-auto"
             >
               <SlidersHorizontal className="w-5 h-5 mr-2" />
-              Filters
+              {t("shopPage.filters")}
               {(selectedCategories.length > 0 || selectedRegions.length > 0) && (
                 <span className="ml-2 w-6 h-6 bg-terracotta text-cream text-xs rounded-full flex items-center justify-center">
                   {selectedCategories.length + selectedRegions.length}
@@ -116,7 +118,7 @@ const Shop = () => {
             <aside className={`lg:w-72 shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
               <div className="bg-card rounded-xl p-6 shadow-soft sticky top-28 space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-lg text-foreground">Filters</h3>
+                  <h3 className="font-serif text-lg text-foreground">{t("shopPage.filters")}</h3>
                   <button 
                     onClick={() => {
                       setSelectedCategories([]);
@@ -126,14 +128,14 @@ const Shop = () => {
                     }}
                     className="text-sm text-primary hover:underline"
                   >
-                    Clear All
+                    {t("shopPage.clearAll")}
                   </button>
                 </div>
 
                 {/* Price Range */}
                 <div className="space-y-4">
                   <h4 className="font-medium text-foreground flex items-center justify-between">
-                    Price Range
+                    {t("shopPage.priceRange")}
                     <ChevronDown className="w-4 h-4" />
                   </h4>
                   <Slider
@@ -152,7 +154,7 @@ const Shop = () => {
 
                 {/* Categories */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-foreground">Categories</h4>
+                  <h4 className="font-medium text-foreground">{t("shopPage.categories")}</h4>
                   {categories.map((category) => (
                     <label key={category.id} className="flex items-center gap-3 cursor-pointer">
                       <Checkbox
@@ -166,7 +168,7 @@ const Shop = () => {
 
                 {/* Regions */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-foreground">Region</h4>
+                  <h4 className="font-medium text-foreground">{t("shopPage.region")}</h4>
                   {regions.map((region) => (
                     <label key={region} className="flex items-center gap-3 cursor-pointer">
                       <Checkbox
@@ -184,7 +186,7 @@ const Shop = () => {
                     checked={handmadeOnly} 
                     onCheckedChange={(checked) => setHandmadeOnly(checked === true)}
                   />
-                  <span className="text-sm font-medium text-foreground">Handmade Only</span>
+                  <span className="text-sm font-medium text-foreground">{t("shopPage.handmadeOnly")}</span>
                 </label>
               </div>
             </aside>
@@ -194,13 +196,13 @@ const Shop = () => {
               {/* Results Header */}
               <div className="flex items-center justify-between mb-6">
                 <p className="text-muted-foreground">
-                  Showing <span className="font-medium text-foreground">{filteredProducts.length}</span> products
+                  {t("shopPage.showing", { count: filteredProducts.length })}
                 </p>
                 <select className="bg-card border border-input rounded-lg px-4 py-2 text-sm">
-                  <option>Sort by: Featured</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Newest First</option>
+                  <option>{t("shopPage.sort.featured")}</option>
+                  <option>{t("shopPage.sort.priceLow")}</option>
+                  <option>{t("shopPage.sort.priceHigh")}</option>
+                  <option>{t("shopPage.sort.newest")}</option>
                 </select>
               </div>
 
@@ -250,9 +252,9 @@ const Shop = () => {
                       price={product.price}
                       originalPrice={product.compare_at_price || undefined}
                       image={product.images.find(img => img.is_primary)?.image_url || product.images[0]?.image_url || "/placeholder.svg"}
-                      artisan={product.seller?.business_name || "Unknown Artisan"}
-                      artisanVillage={product.seller?.village || "Mithila"}
-                      category={product.category?.name || "Crafts"}
+                      artisan={product.seller?.business_name || t("shopPage.unknownArtisan")}
+                      artisanVillage={product.seller?.village || t("shopPage.defaultVillage")}
+                      category={product.category?.name || t("shopPage.defaultCategory")}
                       isHandmade={product.is_handmade}
                       isFeatured={product.is_featured}
                     />
@@ -260,14 +262,14 @@ const Shop = () => {
                 </div>
               ) : (
                 <div className="text-center py-20">
-                  <p className="text-muted-foreground mb-4">No products found matching your criteria</p>
+                  <p className="text-muted-foreground mb-4">{t("shopPage.empty")}</p>
                   <Button variant="heritage" onClick={() => {
                     setSelectedCategories([]);
                     setSelectedRegions([]);
                     setSearchQuery("");
                     setPriceRange([0, 10000]);
                   }}>
-                    Clear Filters
+                    {t("shopPage.clearFilters")}
                   </Button>
                 </div>
               )}

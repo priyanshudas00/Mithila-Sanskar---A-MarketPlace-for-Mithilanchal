@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 533.5 544.3" xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -16,12 +17,17 @@ const SignInWithGoogle = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const { t } = useTranslation();
 
   // Listen for the success event emitted by AuthContext after OAuth redirect
-  window.addEventListener('mithila:auth-success', (e: any) => {
-    const name = e?.detail?.name || '';
-    toast({ title: `Signed in as ${name}`, description: 'Welcome back!', });
-  });
+  useEffect(() => {
+    const handler = (e: any) => {
+      const name = e?.detail?.name || '';
+      toast({ title: t("auth.google.signedInTitle", { name }), description: t("auth.google.signedInDesc") });
+    };
+    window.addEventListener('mithila:auth-success', handler);
+    return () => window.removeEventListener('mithila:auth-success', handler);
+  }, [toast, t]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -34,20 +40,20 @@ const SignInWithGoogle = () => {
         const msg = err?.message || err?.msg || JSON.stringify(err);
         if (msg?.toLowerCase?.().includes('unsupported provider') || (err?.error_code === 'validation_failed')) {
           toast({
-            title: 'Google Sign-In not configured',
-            description: 'Enable Google provider in Supabase (Auth → Providers → Google) and add Client ID & Secret.',
+            title: t("auth.google.configTitle"),
+            description: t("auth.google.configDesc"),
             variant: 'destructive',
           });
         } else {
-          toast({ title: 'Sign in failed', description: msg || 'Unexpected error', variant: 'destructive' });
+          toast({ title: t("auth.google.failedTitle"), description: msg || t("auth.google.failedDesc"), variant: 'destructive' });
         }
         setLoading(false);
         return;
       }
 
-      toast({ title: 'Redirecting to Google...', description: 'Complete the sign-in flow in the popup or new window.' });
+      toast({ title: t("auth.google.redirectTitle"), description: t("auth.google.redirectDesc") });
     } catch (error: any) {
-      toast({ title: 'Sign in failed', description: error?.message || 'Unexpected error', variant: 'destructive' });
+      toast({ title: t("auth.google.failedTitle"), description: error?.message || t("auth.google.failedDesc"), variant: 'destructive' });
       setLoading(false);
     }
   };
@@ -57,19 +63,19 @@ const SignInWithGoogle = () => {
   return (
     <div>
       <button
-        aria-label="Sign in with Google"
+        aria-label={t("auth.google.aria")}
         onClick={handleGoogleSignIn}
         className={`w-full inline-flex items-center justify-center gap-3 bg-white border border-border text-sm rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-all ${loading || disabled ? 'opacity-70 cursor-not-allowed' : 'hover:border-terracotta hover:ring-2 hover:ring-terracotta/20'}`}
         disabled={loading || disabled}
-        title={disabled ? 'Google sign-in not configured (set VITE_GOOGLE_CLIENT_ID in .env)' : undefined}
+        title={disabled ? t("auth.google.disabledTitle") : undefined}
       >
         <GoogleIcon />
-        <span className="text-foreground font-medium">Sign in with Google</span>
+        <span className="text-foreground font-medium">{t("auth.google.cta")}</span>
         {/* subtle Mithila accent on the far right */}
         <span className="ml-auto hidden sm:inline-block w-2 h-2 rounded-full bg-terracotta" />
       </button>
       {disabled && (
-        <p className="text-xs text-muted-foreground mt-2">Google sign-in is disabled locally — set <code>VITE_GOOGLE_CLIENT_ID</code> or enable provider in Supabase.</p>
+        <p className="text-xs text-muted-foreground mt-2">{t("auth.google.disabledMessage")}</p>
       )}
     </div>
   );

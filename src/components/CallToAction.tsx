@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const CallToAction = () => {
+  const { t } = useTranslation();
   return (
     <section className="py-20 bg-gradient-to-br from-terracotta via-terracotta-dark to-earth relative overflow-hidden">
       {/* Decorative Pattern */}
@@ -12,11 +14,10 @@ const CallToAction = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-cream mb-6">
-            Ready to Bring Mithila Home?
+            {t("cta.title")}
           </h2>
           <p className="text-cream/80 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Every purchase tells a story. Every product preserves a tradition. 
-            Join thousands who have brought a piece of Mithila into their lives.
+            {t("cta.subtitle")}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -25,7 +26,7 @@ const CallToAction = () => {
                 size="xl" 
                 className="bg-cream text-earth hover:bg-cream/90 shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Start Shopping
+                {t("cta.shop")}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
@@ -35,7 +36,7 @@ const CallToAction = () => {
                 variant="outline"
                 className="border-cream/30 text-cream bg-transparent hover:bg-cream/10"
               >
-                Become a Seller
+                {t("cta.becomeSeller")}
               </Button>
             </Link>
           </div>
@@ -44,15 +45,15 @@ const CallToAction = () => {
           <div className="grid grid-cols-3 gap-8 mt-16 pt-10 border-t border-cream/20">
             <div>
               <div className="font-serif text-4xl md:text-5xl text-golden-light">₹2Cr+</div>
-              <p className="text-cream/70 text-sm mt-1">Paid to Artisans</p>
+              <p className="text-cream/70 text-sm mt-1">{t("cta.statPaid")}</p>
             </div>
             <div>
               <div className="font-serif text-4xl md:text-5xl text-golden-light">10K+</div>
-              <p className="text-cream/70 text-sm mt-1">Happy Customers</p>
+              <p className="text-cream/70 text-sm mt-1">{t("cta.statCustomers")}</p>
             </div>
             <div>
               <div className="font-serif text-4xl md:text-5xl text-golden-light">500+</div>
-              <p className="text-cream/70 text-sm mt-1">Families Supported</p>
+              <p className="text-cream/70 text-sm mt-1">{t("cta.statFamilies")}</p>
             </div>
           </div>
         </div>

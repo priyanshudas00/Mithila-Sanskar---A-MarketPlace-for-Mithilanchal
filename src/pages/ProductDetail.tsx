@@ -11,6 +11,7 @@ import { useProduct } from "@/hooks/useProducts";
 import productPainting from "@/assets/product-painting-1.jpg";
 import artisanImage from "@/assets/artisan-painting.jpg";
 import { getSiteOrigin } from "@/lib/config";
+import { useTranslation } from "react-i18next";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -24,10 +25,11 @@ const ProductDetail = () => {
   const { toast } = useToast();
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const { t } = useTranslation();
 
   const handleLike = () => {
     setLiked((v) => !v);
-    toast({ title: liked ? "Removed from wishlist" : "Added to wishlist" });
+    toast({ title: liked ? t("productDetail.wishlistRemoved") : t("productDetail.wishlistAdded") });
   };
 
   const handleShare = async () => {
@@ -40,7 +42,7 @@ const ProductDetail = () => {
       }
     } else {
       await navigator.clipboard.writeText(url);
-      toast({ title: "Link copied to clipboard" });
+      toast({ title: t("productDetail.linkCopied") });
     }
   };
 
@@ -95,9 +97,9 @@ const ProductDetail = () => {
         <Navigation />
         <main className="pt-24 pb-20">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-2xl font-serif mb-4">Product not found</h1>
+            <h1 className="text-2xl font-serif mb-4">{t("productDetail.notFound")}</h1>
             <Link to="/shop">
-              <Button variant="heritage">Back to Shop</Button>
+              <Button variant="heritage">{t("productDetail.backToShop")}</Button>
             </Link>
           </div>
         </main>
@@ -114,11 +116,11 @@ const ProductDetail = () => {
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
-            <Link to="/" className="hover:text-foreground">Home</Link>
+            <Link to="/" className="hover:text-foreground">{t("productDetail.breadcrumb.home")}</Link>
             <span>/</span>
-            <Link to="/shop" className="hover:text-foreground">Shop</Link>
+            <Link to="/shop" className="hover:text-foreground">{t("productDetail.breadcrumb.shop")}</Link>
             <span>/</span>
-            <Link to={`/shop?category=${product.category?.id || "all"}`} className="hover:text-foreground">{product.category?.name || "Crafts"}</Link>
+            <Link to={`/shop?category=${product.category?.id || "all"}`} className="hover:text-foreground">{product.category?.name || t("productDetail.breadcrumb.category")}</Link>
             <span>/</span>
             <span className="text-foreground">{product.name}</span>
           </nav>
@@ -150,14 +152,14 @@ const ProductDetail = () => {
                     <button
                       onClick={goToPrevious}
                       className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
-                      aria-label="Previous image"
+                      aria-label={t("productDetail.prevImage")}
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                       onClick={goToNext}
                       className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
-                      aria-label="Next image"
+                      aria-label={t("productDetail.nextImage")}
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
@@ -187,10 +189,10 @@ const ProductDetail = () => {
             <div className="space-y-6">
               {/* Badges */}
               <div className="flex items-center gap-3">
-                <span className="artisan-badge">Handcrafted</span>
+                <span className="artisan-badge">{t("productDetail.handcrafted")}</span>
                 {product.is_gi_tagged && (
                   <span className="px-3 py-1 text-xs font-medium bg-sage/20 text-sage rounded-full">
-                    GI Tagged
+                    {t("productDetail.gi")}
                   </span>
                 )}
               </div>
@@ -198,7 +200,7 @@ const ProductDetail = () => {
               {/* Title & Category */}
               <div>
                 <p className="text-sm text-primary uppercase tracking-wider mb-2">
-                  {product.category?.name || "Crafts"}
+                  {product.category?.name || t("productDetail.breadcrumb.category")}
                 </p>
                 <h1 className="font-serif text-3xl md:text-4xl text-foreground">
                   {product.name}
@@ -220,7 +222,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
                 <span className="text-foreground font-medium">{product.seller?.rating || 0}</span>
-                <span className="text-muted-foreground">({product.views_count || 0} views)</span>
+                <span className="text-muted-foreground">{t("productDetail.views", { count: product.views_count || 0 })}</span>
               </div>
 
               {/* Price */}
@@ -234,7 +236,7 @@ const ProductDetail = () => {
                       ₹{product.compare_at_price.toLocaleString()}
                     </span>
                     <span className="text-sage font-medium">
-                      {Math.round((1 - product.price / product.compare_at_price) * 100)}% off
+                      {Math.round((1 - product.price / product.compare_at_price) * 100)}% {t("productDetail.off")}
                     </span>
                   </>
                 )}
@@ -242,7 +244,7 @@ const ProductDetail = () => {
 
               {/* Description */}
               <p className="text-muted-foreground leading-relaxed">
-                {product.description || "Authentic handcrafted product from Mithila artisans"}
+                {product.description || t("productDetail.descriptionFallback")}
               </p>
 
               {/* Artisan Card */}
@@ -252,15 +254,15 @@ const ProductDetail = () => {
               >
                 <img
                   src={product.seller?.avatar_url || artisanImage}
-                  alt={product.seller?.business_name || "Artisan"}
+                  alt={product.seller?.business_name || t("productDetail.unknownArtisan")}
                   className="w-16 h-16 rounded-full object-cover"
                 />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Created by</p>
-                  <p className="font-serif text-lg text-foreground">{product.seller?.business_name || "Unknown Artisan"}</p>
+                  <p className="text-sm text-muted-foreground">{t("productDetail.createdBy")}</p>
+                  <p className="font-serif text-lg text-foreground">{product.seller?.business_name || t("productDetail.unknownArtisan")}</p>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <MapPin className="w-3 h-3" />
-                    {product.seller?.village || "Mithila"}
+                    {product.seller?.village || t("productDetail.defaultVillage")}
                   </div>
                 </div>
                 <div className="text-right">
@@ -268,7 +270,7 @@ const ProductDetail = () => {
                     <Star className="w-4 h-4 text-golden fill-golden" />
                     <span className="font-medium">{product.seller?.rating || 0}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{product.seller?.years_experience || 0}+ years</p>
+                  <p className="text-xs text-muted-foreground">{t("productDetail.years", { count: product.seller?.years_experience || 0 })}</p>
                 </div>
               </Link>
 
@@ -297,7 +299,7 @@ const ProductDetail = () => {
                   addToCart.mutate({ productId: product.id, quantity });
                 }}>
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  Add to Cart
+                  {t("productDetail.addToCart")}
                 </Button>
                 <Button variant="heritage" size="icon" className="shrink-0 w-12 h-12" onClick={handleLike}>
                   <Heart className={`w-5 h-5 ${liked ? 'text-vermilion fill-vermilion' : ''}`} />
@@ -311,18 +313,18 @@ const ProductDetail = () => {
               <div className="grid grid-cols-3 gap-4 pt-6 border-t border-border">
                 <div className="text-center">
                   <Truck className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <p className="text-xs text-muted-foreground">Free Shipping</p>
-                  <p className="text-xs text-muted-foreground">Pan India</p>
+                  <p className="text-xs text-muted-foreground">{t("productDetail.trust.shipping")}</p>
+                  <p className="text-xs text-muted-foreground">{t("productDetail.trust.panIndia")}</p>
                 </div>
                 <div className="text-center">
                   <Shield className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <p className="text-xs text-muted-foreground">Authenticity</p>
-                  <p className="text-xs text-muted-foreground">Guaranteed</p>
+                  <p className="text-xs text-muted-foreground">{t("productDetail.trust.authenticity")}</p>
+                  <p className="text-xs text-muted-foreground">{t("productDetail.trust.guaranteed")}</p>
                 </div>
                 <div className="text-center">
                   <RotateCcw className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <p className="text-xs text-muted-foreground">7 Day</p>
-                  <p className="text-xs text-muted-foreground">Returns</p>
+                  <p className="text-xs text-muted-foreground">{t("productDetail.trust.days")}</p>
+                  <p className="text-xs text-muted-foreground">{t("productDetail.trust.returns")}</p>
                 </div>
               </div>
             </div>
@@ -331,57 +333,57 @@ const ProductDetail = () => {
           {/* Product Story */}
           <div className="mt-16 grid md:grid-cols-2 gap-12">
             <div>
-              <h2 className="font-serif text-2xl text-foreground mb-4">The Story Behind This Art</h2>
+              <h2 className="font-serif text-2xl text-foreground mb-4">{t("productDetail.storyTitle")}</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 {product.story || product.description}
               </p>
               <div className="space-y-3">
                 {product.materials && (
                   <div className="flex items-center gap-4">
-                    <span className="text-muted-foreground">Materials:</span>
+                    <span className="text-muted-foreground">{t("productDetail.materials")}</span>
                     <span className="font-medium">{Array.isArray(product.materials) ? product.materials.join(", ") : product.materials}</span>
                   </div>
                 )}
                 {product.dimensions && (
                   <div className="flex items-center gap-4">
-                    <span className="text-muted-foreground">Dimensions:</span>
+                    <span className="text-muted-foreground">{t("productDetail.dimensions")}</span>
                     <span className="font-medium">{product.dimensions}</span>
                   </div>
                 )}
                 {product.craft_time && (
                   <div className="flex items-center gap-4">
-                    <span className="text-muted-foreground">Craft Time:</span>
+                    <span className="text-muted-foreground">{t("productDetail.craftTime")}</span>
                     <span className="font-medium">{product.craft_time}</span>
                   </div>
                 )}
               </div>
             </div>
             <div className="bg-secondary rounded-xl p-6">
-              <h3 className="font-serif text-lg text-foreground mb-4">Why This Matters</h3>
+              <h3 className="font-serif text-lg text-foreground mb-4">{t("productDetail.whyTitle")}</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <span className="w-6 h-6 rounded-full bg-terracotta/20 flex items-center justify-center shrink-0 mt-0.5">
                     <span className="w-2 h-2 rounded-full bg-terracotta" />
                   </span>
-                  <span className="text-muted-foreground">80% of your purchase goes directly to the artisan</span>
+                  <span className="text-muted-foreground">{t("productDetail.whyPoints.one")}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="w-6 h-6 rounded-full bg-terracotta/20 flex items-center justify-center shrink-0 mt-0.5">
                     <span className="w-2 h-2 rounded-full bg-terracotta" />
                   </span>
-                  <span className="text-muted-foreground">Supports preservation of 2,500+ year old art form</span>
+                  <span className="text-muted-foreground">{t("productDetail.whyPoints.two")}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="w-6 h-6 rounded-full bg-terracotta/20 flex items-center justify-center shrink-0 mt-0.5">
                     <span className="w-2 h-2 rounded-full bg-terracotta" />
                   </span>
-                  <span className="text-muted-foreground">Empowers women artisans in rural Bihar</span>
+                  <span className="text-muted-foreground">{t("productDetail.whyPoints.three")}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="w-6 h-6 rounded-full bg-terracotta/20 flex items-center justify-center shrink-0 mt-0.5">
                     <span className="w-2 h-2 rounded-full bg-terracotta" />
                   </span>
-                  <span className="text-muted-foreground">100% eco-friendly natural materials</span>
+                  <span className="text-muted-foreground">{t("productDetail.whyPoints.four")}</span>
                 </li>
               </ul>
             </div>

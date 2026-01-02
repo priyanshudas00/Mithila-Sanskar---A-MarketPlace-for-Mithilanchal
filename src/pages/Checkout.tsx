@@ -14,6 +14,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationTemplates } from "@/lib/notifications";
 import { MapPin, CreditCard, Truck, CheckCircle } from "lucide-react";
 import type { Json } from "@/integrations/supabase/types";
+import { useTranslation } from "react-i18next";
 
 interface Address {
   id: string;
@@ -33,6 +34,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { sendNotification } = useNotifications();
+  const { t } = useTranslation();
   
   const [step, setStep] = useState(1);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -83,9 +85,9 @@ const Checkout = () => {
     });
 
     if (error) {
-      toast({ title: "Error", description: "Failed to add address", variant: "destructive" });
+      toast({ title: t("checkout.error"), description: t("checkout.addAddressFail"), variant: "destructive" });
     } else {
-      toast({ title: "Success", description: "Address added successfully" });
+      toast({ title: t("checkout.success"), description: t("checkout.addAddressSuccess") });
       setShowNewAddress(false);
       setNewAddress({
         full_name: "",
@@ -147,7 +149,7 @@ const Checkout = () => {
       .single();
 
     if (orderError || !order) {
-      toast({ title: "Error", description: "Failed to place order", variant: "destructive" });
+      toast({ title: t("checkout.error"), description: t("checkout.placeFail"), variant: "destructive" });
       setIsLoading(false);
       return;
     }
@@ -186,14 +188,14 @@ const Checkout = () => {
       
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="font-serif text-3xl text-foreground mb-8">Checkout</h1>
+          <h1 className="font-serif text-3xl text-foreground mb-8">{t("checkout.title")}</h1>
 
           {/* Progress Steps */}
           <div className="flex items-center justify-center mb-12">
             {[
-              { num: 1, label: "Address", icon: MapPin },
-              { num: 2, label: "Payment", icon: CreditCard },
-              { num: 3, label: "Review", icon: CheckCircle },
+              { num: 1, label: t("checkout.steps.address"), icon: MapPin },
+              { num: 2, label: t("checkout.steps.payment"), icon: CreditCard },
+              { num: 3, label: t("checkout.steps.review"), icon: CheckCircle },
             ].map((s, idx) => (
               <div key={s.num} className="flex items-center">
                 <button
@@ -220,7 +222,7 @@ const Checkout = () => {
               {/* Step 1: Address */}
               {step === 1 && (
                 <div className="bg-card rounded-xl p-6 shadow-soft">
-                  <h2 className="font-serif text-xl text-foreground mb-4">Delivery Address</h2>
+                  <h2 className="font-serif text-xl text-foreground mb-4">{t("checkout.deliveryAddress")}</h2>
                   
                   {addresses.length > 0 && !showNewAddress && (
                     <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
@@ -244,10 +246,10 @@ const Checkout = () => {
                               <p className="text-sm text-muted-foreground">
                                 {addr.city}, {addr.state} - {addr.pincode}
                               </p>
-                              <p className="text-sm text-muted-foreground">Phone: {addr.phone}</p>
+                              <p className="text-sm text-muted-foreground">{t("checkout.phone")}: {addr.phone}</p>
                             </div>
                             {addr.is_default && (
-                              <span className="text-xs bg-sage/20 text-sage px-2 py-1 rounded">Default</span>
+                              <span className="text-xs bg-sage/20 text-sage px-2 py-1 rounded">{t("checkout.default")}</span>
                             )}
                           </label>
                         ))}
@@ -259,7 +261,7 @@ const Checkout = () => {
                     <div className="space-y-4 mt-4">
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="full_name">Full Name</Label>
+                          <Label htmlFor="full_name">{t("checkout.fullName")}</Label>
                           <Input
                             id="full_name"
                             value={newAddress.full_name}
@@ -267,7 +269,7 @@ const Checkout = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="phone">Phone Number</Label>
+                          <Label htmlFor="phone">{t("checkout.phone")}</Label>
                           <Input
                             id="phone"
                             value={newAddress.phone}
@@ -276,7 +278,7 @@ const Checkout = () => {
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="address_line_1">Address Line 1</Label>
+                        <Label htmlFor="address_line_1">{t("checkout.address1")}</Label>
                         <Input
                           id="address_line_1"
                           value={newAddress.address_line_1}
@@ -284,7 +286,7 @@ const Checkout = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="address_line_2">Address Line 2 (Optional)</Label>
+                        <Label htmlFor="address_line_2">{t("checkout.address2")}</Label>
                         <Input
                           id="address_line_2"
                           value={newAddress.address_line_2}
@@ -293,7 +295,7 @@ const Checkout = () => {
                       </div>
                       <div className="grid sm:grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="city">City</Label>
+                          <Label htmlFor="city">{t("checkout.city")}</Label>
                           <Input
                             id="city"
                             value={newAddress.city}
@@ -301,7 +303,7 @@ const Checkout = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="state">State</Label>
+                          <Label htmlFor="state">{t("checkout.state")}</Label>
                           <Input
                             id="state"
                             value={newAddress.state}
@@ -309,7 +311,7 @@ const Checkout = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="pincode">Pincode</Label>
+                          <Label htmlFor="pincode">{t("checkout.pincode")}</Label>
                           <Input
                             id="pincode"
                             value={newAddress.pincode}
@@ -319,11 +321,11 @@ const Checkout = () => {
                       </div>
                       <div className="flex gap-4">
                         <Button onClick={handleAddAddress} variant="cultural">
-                          Save Address
+                          {t("checkout.saveAddress")}
                         </Button>
                         {addresses.length > 0 && (
                           <Button variant="outline" onClick={() => setShowNewAddress(false)}>
-                            Cancel
+                            {t("checkout.cancel")}
                           </Button>
                         )}
                       </div>
@@ -336,7 +338,7 @@ const Checkout = () => {
                       className="mt-4"
                       onClick={() => setShowNewAddress(true)}
                     >
-                      + Add New Address
+                      + {t("checkout.addNewAddress")}
                     </Button>
                   )}
 
@@ -346,7 +348,7 @@ const Checkout = () => {
                       disabled={!selectedAddress}
                       variant="cultural"
                     >
-                      Continue to Payment
+                      {t("checkout.toPayment")}
                     </Button>
                   </div>
                 </div>
@@ -355,7 +357,7 @@ const Checkout = () => {
               {/* Step 2: Payment */}
               {step === 2 && (
                 <div className="bg-card rounded-xl p-6 shadow-soft">
-                  <h2 className="font-serif text-xl text-foreground mb-4">Payment Method</h2>
+                  <h2 className="font-serif text-xl text-foreground mb-4">{t("checkout.paymentMethod")}</h2>
                   
                   <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                     <div className="space-y-4">
@@ -368,9 +370,9 @@ const Checkout = () => {
                       >
                         <RadioGroupItem value="cod" />
                         <div className="flex-1">
-                          <p className="font-medium text-foreground">Cash on Delivery (COD)</p>
+                          <p className="font-medium text-foreground">{t("checkout.cod.title")}</p>
                           <p className="text-sm text-muted-foreground">
-                            Pay when your order is delivered
+                            {t("checkout.cod.desc")}
                           </p>
                         </div>
                         <Truck className="w-6 h-6 text-primary" />
@@ -385,9 +387,9 @@ const Checkout = () => {
                       >
                         <RadioGroupItem value="upi" />
                         <div className="flex-1">
-                          <p className="font-medium text-foreground">UPI Payment</p>
+                          <p className="font-medium text-foreground">{t("checkout.upi.title")}</p>
                           <p className="text-sm text-muted-foreground">
-                            Pay using any UPI app (Google Pay, PhonePe, Paytm)
+                            {t("checkout.upi.desc")}
                           </p>
                         </div>
                         <CreditCard className="w-6 h-6 text-primary" />
@@ -405,10 +407,10 @@ const Checkout = () => {
 
                   <div className="flex justify-between mt-6">
                     <Button variant="outline" onClick={() => setStep(1)}>
-                      Back
+                      {t("checkout.back")}
                     </Button>
                     <Button onClick={() => setStep(3)} variant="cultural">
-                      Review Order
+                      {t("checkout.reviewCta")}
                     </Button>
                   </div>
                 </div>
@@ -417,11 +419,11 @@ const Checkout = () => {
               {/* Step 3: Review */}
               {step === 3 && (
                 <div className="bg-card rounded-xl p-6 shadow-soft">
-                  <h2 className="font-serif text-xl text-foreground mb-4">Review Order</h2>
+                  <h2 className="font-serif text-xl text-foreground mb-4">{t("checkout.reviewTitle")}</h2>
                   
                   {/* Delivery Address */}
                   <div className="mb-6 p-4 bg-secondary rounded-lg">
-                    <h3 className="font-medium text-foreground mb-2">Delivering to:</h3>
+                    <h3 className="font-medium text-foreground mb-2">{t("checkout.deliveringTo")}</h3>
                     {(() => {
                       const addr = addresses.find(a => a.id === selectedAddress);
                       return addr ? (
@@ -430,7 +432,7 @@ const Checkout = () => {
                           <p className="text-sm text-muted-foreground">
                             {addr.address_line_1}, {addr.city}, {addr.state} - {addr.pincode}
                           </p>
-                          <p className="text-sm text-muted-foreground">Phone: {addr.phone}</p>
+                          <p className="text-sm text-muted-foreground">{t("checkout.phone")}: {addr.phone}</p>
                         </>
                       ) : null;
                     })()}
@@ -462,15 +464,15 @@ const Checkout = () => {
 
                   {/* Payment Method */}
                   <div className="p-4 bg-secondary rounded-lg mb-6">
-                    <h3 className="font-medium text-foreground mb-1">Payment Method</h3>
+                    <h3 className="font-medium text-foreground mb-1">{t("checkout.paymentMethod")}</h3>
                     <p className="text-muted-foreground">
-                      {paymentMethod === "cod" ? "Cash on Delivery" : "UPI Payment"}
+                      {paymentMethod === "cod" ? t("checkout.cod.title") : t("checkout.upi.title")}
                     </p>
                   </div>
 
                   <div className="flex justify-between">
                     <Button variant="outline" onClick={() => setStep(2)}>
-                      Back
+                      {t("checkout.back")}
                     </Button>
                     <Button
                       onClick={handlePlaceOrder}
@@ -478,7 +480,7 @@ const Checkout = () => {
                       variant="cultural"
                       size="lg"
                     >
-                      {isLoading ? "Placing Order..." : "Place Order"}
+                      {isLoading ? t("checkout.placing") : t("checkout.place")}
                     </Button>
                   </div>
                 </div>
@@ -488,29 +490,29 @@ const Checkout = () => {
             {/* Order Summary Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-card rounded-xl p-6 shadow-soft sticky top-28">
-                <h3 className="font-serif text-lg text-foreground mb-4">Order Summary</h3>
+                <h3 className="font-serif text-lg text-foreground mb-4">{t("checkout.summary")}</h3>
                 
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal ({cartItems.length} items)</span>
+                    <span className="text-muted-foreground">{t("checkout.subtotal", { count: cartItems.length })}</span>
                     <span className="text-foreground">₹{cartTotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="text-muted-foreground">{t("checkout.shipping")}</span>
                     <span className={shippingCost === 0 ? "text-sage" : "text-foreground"}>
-                      {shippingCost === 0 ? "FREE" : `₹${shippingCost}`}
+                      {shippingCost === 0 ? t("checkout.free") : `₹${shippingCost}`}
                     </span>
                   </div>
                   {cartTotal < 1500 && (
                     <p className="text-xs text-muted-foreground">
-                      Add ₹{(1500 - cartTotal).toLocaleString()} more for free shipping
+                      {t("checkout.freeShippingThreshold", { amount: (1500 - cartTotal).toLocaleString() })}
                     </p>
                   )}
                 </div>
 
                 <div className="border-t border-border mt-4 pt-4">
                   <div className="flex justify-between items-baseline">
-                    <span className="font-medium text-foreground">Total</span>
+                    <span className="font-medium text-foreground">{t("checkout.total")}</span>
                     <span className="font-serif text-2xl text-foreground">
                       ₹{(cartTotal + shippingCost).toLocaleString()}
                     </span>

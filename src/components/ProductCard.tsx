@@ -5,6 +5,7 @@ import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface ProductCardProps {
   id: string;
@@ -36,6 +37,7 @@ const ProductCard = ({
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -47,13 +49,13 @@ const ProductCard = ({
     }
     
     addToCart(id, 1);
-    toast({ title: "Added to cart", description: `${name} added to your cart` });
+    toast({ title: t("shop.addedToCartTitle"), description: t("shop.addedToCartDesc", { name }) });
   };
 
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault();
     setLiked((v) => !v);
-    toast({ title: liked ? "Removed from wishlist" : "Added to wishlist" });
+    toast({ title: liked ? t("shop.removedFromWishlist") : t("shop.addedToWishlist") });
   };
 
   return (
@@ -73,7 +75,7 @@ const ProductCard = ({
         <div className="absolute bottom-4 left-4 right-4 flex gap-2 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
           <Button variant="warm" size="sm" className="flex-1" onClick={handleAddToCart}>
             <ShoppingCart className="w-4 h-4 mr-1" />
-            Add to Cart
+            {t("shop.addToCart")}
           </Button>
           <Button variant="warm" size="icon" className="shrink-0" onClick={handleLike}>
             <Heart className={`w-4 h-4 ${liked ? 'text-vermilion fill-vermilion' : ''}`} />
@@ -84,12 +86,12 @@ const ProductCard = ({
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {isHandmade && (
             <span className="px-2 py-1 text-xs font-medium bg-golden/90 text-earth rounded-full">
-              Handcrafted
+              {t("shop.handcrafted")}
             </span>
           )}
           {isFeatured && (
             <span className="px-2 py-1 text-xs font-medium bg-vermilion text-cream rounded-full">
-              Featured
+              {t("shop.featured")}
             </span>
           )}
         </div>

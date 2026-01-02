@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import productPainting from "@/assets/product-painting-1.jpg";
 import productTextile from "@/assets/product-textile-1.jpg";
 import productTerracotta from "@/assets/product-terracotta-1.jpg";
@@ -37,20 +38,21 @@ const categories = [
 ];
 
 const Categories = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-20 bg-gradient-warm">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
           <span className="text-sm font-medium text-primary uppercase tracking-wider">
-            Shop by Category
+            {t("categories.sectionLabel")}
           </span>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mt-2 mb-4">
-            Treasures of Mithila
+            {t("categories.title")}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Each category represents centuries of tradition, passed down through generations 
-            of master artisans in the villages of Mithilanchal.
+            {t("categories.subtitle")}
           </p>
         </div>
         
@@ -76,16 +78,16 @@ const Categories = () => {
               {/* Content */}
               <div className="absolute inset-0 p-6 flex flex-col justify-end">
                 <span className="text-cream/70 text-sm mb-1">
-                  {category.productCount} Products
+                  {t("categories.productCount", { count: category.productCount })}
                 </span>
                 <h3 className="font-serif text-xl md:text-2xl text-cream mb-2">
-                  {category.name}
+                  {t(`categories.items.${category.id}.name`)}
                 </h3>
                 <p className="text-cream/80 text-sm mb-4 line-clamp-2">
-                  {category.description}
+                  {t(`categories.items.${category.id}.description`)}
                 </p>
                 <div className="flex items-center text-terracotta-light font-medium text-sm group-hover:translate-x-2 transition-transform duration-300">
-                  Explore
+                  {t("categories.explore")}
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </div>
               </div>
