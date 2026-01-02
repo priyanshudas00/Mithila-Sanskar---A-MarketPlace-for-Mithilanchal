@@ -71,13 +71,13 @@ const Shop = () => {
       
       <main className="pt-24 pb-20">
         {/* Header */}
-        <div className="bg-gradient-cultural py-12 mb-8">
+        <div className="bg-gradient-cultural py-8 md:py-12 mb-6 md:mb-8">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl">
-              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mb-4">
+              <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-foreground mb-2 md:mb-4">
                 {t("shopPage.title")}
               </h1>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-muted-foreground text-sm md:text-lg">
                 {t("shopPage.subtitle")}
               </p>
             </div>
@@ -86,22 +86,22 @@ const Shop = () => {
 
         <div className="container mx-auto px-4">
           {/* Search & Filter Bar */}
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-6 md:mb-8">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder={t("shopPage.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12"
+                className="pl-10 md:pl-12 h-10 md:h-12 text-sm md:text-base"
               />
             </div>
             <Button
               variant="heritage"
-              size="lg"
+              size="default"
               onClick={() => setShowFilters(!showFilters)}
-              className="md:w-auto"
+              className="w-full sm:w-auto h-10 md:h-12"
             >
               <SlidersHorizontal className="w-5 h-5 mr-2" />
               {t("shopPage.filters")}
@@ -113,24 +113,48 @@ const Shop = () => {
             </Button>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar */}
-            <aside className={`lg:w-72 shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-              <div className="bg-card rounded-xl p-6 shadow-soft sticky top-28 space-y-6">
+          <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
+            {/* Filters Sidebar - Mobile Overlay / Desktop Sidebar */}
+            <aside className={`
+              ${showFilters ? 'fixed inset-0 z-50 bg-background/95 backdrop-blur-sm lg:relative lg:inset-auto lg:z-auto lg:bg-transparent' : 'hidden lg:block'}
+              lg:w-72 shrink-0
+            `}>
+              <div className={`
+                bg-card rounded-xl p-4 md:p-6 shadow-soft space-y-4 md:space-y-6
+                ${showFilters ? 'h-full overflow-y-auto lg:h-auto lg:sticky lg:top-28' : 'sticky top-28'}
+              `}>
                 <div className="flex items-center justify-between">
                   <h3 className="font-serif text-lg text-foreground">{t("shopPage.filters")}</h3>
-                  <button 
-                    onClick={() => {
-                      setSelectedCategories([]);
-                      setSelectedRegions([]);
-                      setPriceRange([0, 10000]);
-                      setHandmadeOnly(true);
-                    }}
-                    className="text-sm text-primary hover:underline"
-                  >
-                    {t("shopPage.clearAll")}
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => {
+                        setSelectedCategories([]);
+                        setSelectedRegions([]);
+                        setPriceRange([0, 10000]);
+                        setHandmadeOnly(true);
+                      }}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      {t("shopPage.clearAll")}
+                    </button>
+                    <button 
+                      onClick={() => setShowFilters(false)}
+                      className="lg:hidden p-2 hover:bg-muted rounded-full"
+                      aria-label="Close filters"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
+                
+                {/* Mobile Apply Button */}
+                <Button 
+                  variant="cultural" 
+                  className="w-full lg:hidden"
+                  onClick={() => setShowFilters(false)}
+                >
+                  {t("shopPage.filters")} ({selectedCategories.length + selectedRegions.length})
+                </Button>
 
                 {/* Price Range */}
                 <div className="space-y-4">
@@ -194,11 +218,11 @@ const Shop = () => {
             {/* Products Grid */}
             <div className="flex-1">
               {/* Results Header */}
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-muted-foreground">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 md:mb-6">
+                <p className="text-muted-foreground text-sm">
                   {t("shopPage.showing", { count: filteredProducts.length })}
                 </p>
-                <select className="bg-card border border-input rounded-lg px-4 py-2 text-sm">
+                <select className="bg-card border border-input rounded-lg px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm w-full sm:w-auto">
                   <option>{t("shopPage.sort.featured")}</option>
                   <option>{t("shopPage.sort.priceLow")}</option>
                   <option>{t("shopPage.sort.priceHigh")}</option>
@@ -243,7 +267,7 @@ const Shop = () => {
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
               ) : filteredProducts.length > 0 ? (
-                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                   {filteredProducts.map((product) => (
                     <ProductCard 
                       key={product.id} 
