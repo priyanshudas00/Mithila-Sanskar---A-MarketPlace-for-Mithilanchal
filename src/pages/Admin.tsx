@@ -96,29 +96,15 @@ const Admin = () => {
   const fetchData = async () => {
     setIsLoading(true);
     
-    // Fetch sellers with all details
+    // Fetch sellers with basic details first
     const { data: sellersData, error: sellersError } = await supabase
       .from("sellers")
-      .select(`
-        id,
-        user_id,
-        business_name,
-        village,
-        district,
-        craft_specialty,
-        years_experience,
-        phone,
-        upi_id,
-        bank_account_number,
-        bank_ifsc,
-        is_approved,
-        is_verified,
-        created_at
-      `)
+      .select("*")
       .order("created_at", { ascending: false });
     
     if (sellersError) {
       console.error("Error fetching sellers:", sellersError);
+      toast({ title: "Error", description: "Failed to fetch sellers: " + sellersError.message, variant: "destructive" });
     }
 
     // Fetch profiles to match with sellers
@@ -133,26 +119,14 @@ const Admin = () => {
         profiles: profilesData.find(p => p.user_id === seller.user_id)
       }));
       setSellers(enrichedSellers as unknown as Seller[]);
+    } else if (sellersData) {
+      setSellers(sellersData as unknown as Seller[]);
     }
 
-    // Fetch products
+    // Fetch products with all available fields
     const { data: productsData, error: productsError } = await supabase
       .from("products")
-      .select(`
-        id,
-        name,
-        description,
-        price,
-        original_price,
-        stock_quantity,
-        is_approved,
-        is_featured,
-        is_active,
-        is_handmade,
-        created_at,
-        seller_id,
-        category_id
-      `)
+      .select("*")
       .order("created_at", { ascending: false });
 
     // Fetch sellers for product display
@@ -172,6 +146,7 @@ const Admin = () => {
 
     if (productsError) {
       console.error("Error fetching products:", productsError);
+      toast({ title: "Error", description: "Failed to fetch products: " + productsError.message, variant: "destructive" });
     }
 
     if (productsData && sellersForProducts) {
@@ -180,6 +155,8 @@ const Admin = () => {
         sellers: sellersForProducts.find(s => s.id === product.seller_id)
       }));
       setProducts(enrichedProducts as unknown as Product[]);
+    } else if (productsData) {
+      setProducts(productsData as unknown as Product[]);
     }
 
     // Fetch orders for stats
