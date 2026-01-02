@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +11,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { NotificationTemplates } from "@/lib/notifications";
 import { 
   Users, Package, ShoppingBag, TrendingUp, CheckCircle, XCircle, 
-  Star, Eye, BarChart3
+  Star, Eye, BarChart3, Power, Trash2, Phone, CreditCard, MapPin, Mail
 } from "lucide-react";
 
 interface Seller {
@@ -20,6 +21,11 @@ interface Seller {
   village: string;
   district: string;
   craft_specialty: string;
+  years_experience: number;
+  phone: string;
+  upi_id: string;
+  bank_account_number: string;
+  bank_ifsc: string;
   is_approved: boolean;
   is_verified: boolean;
   created_at: string;
@@ -29,12 +35,18 @@ interface Seller {
 interface Product {
   id: string;
   name: string;
+  description: string;
   price: number;
+  original_price: number;
+  stock_quantity: number;
   is_approved: boolean;
   is_featured: boolean;
   is_active: boolean;
+  is_handmade: boolean;
   created_at: string;
   sellers?: { business_name: string };
+  categories?: { name: string };
+  product_images?: { image_url: string; is_primary: boolean }[];
 }
 
 interface DashboardStats {
@@ -54,6 +66,10 @@ const Admin = () => {
   
   const [sellers, setSellers] = useState<Seller[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showSellerModal, setShowSellerModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     totalSellers: 0,
     pendingSellers: 0,
@@ -90,6 +106,11 @@ const Admin = () => {
         village,
         district,
         craft_specialty,
+        years_experience,
+        phone,
+        upi_id,
+        bank_account_number,
+        bank_ifsc,
         is_approved,
         is_verified,
         created_at
@@ -120,12 +141,17 @@ const Admin = () => {
       .select(`
         id,
         name,
+        description,
         price,
+        original_price,
+        stock_quantity,
         is_approved,
         is_featured,
         is_active,
+        is_handmade,
         created_at,
-        seller_id
+        seller_id,
+        category_id
       `)
       .order("created_at", { ascending: false });
 
@@ -133,6 +159,16 @@ const Admin = () => {
     const { data: sellersForProducts } = await supabase
       .from("sellers")
       .select("id, business_name");
+
+    // Fetch categories
+    const { data: categoriesData } = await supabase
+      .from("categories")
+      .select("id, name");
+
+    // Fetch product images
+    const { data: productImagesData } = await supabase
+      .from("product_images")
+      .select("product_id, image_url, is_primary");
 
     if (productsError) {
       console.error("Error fetching products:", productsError);
@@ -280,6 +316,79 @@ const Admin = () => {
     }
   };
 
+  const handleToggleProduct = async (productId: string, isActive: boolean) => {
+    const { error } = await supabase
+      .from("products")
+      .update({ is_active: isActive })
+      .eq("id", productId);
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to update product", variant: "destructive" });
+    } else {
+      toast({ title: "Success", description: `Product ${isActive ? "enabled" : "disabled"} in shop` });
+      fetchData();
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
+      return;
+    }
+
+    // First delete product images
+    await supabase.from("product_images").delete().eq("product_id", productId);
+    
+    // Then delete the product
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", productId);
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete product", variant: "destructive" });
+    } else {
+      toast({ title: "Success", description: "Product deleted successfully" });
+      setShowProductModal(false);
+      fetchData();
+    }
+  };
+
+  const handleDeleteSeller = async (sellerId: string) => {
+    if (!confirm("Are you sure you want to delete this seller? This will also delete all their products.")) {
+      return;
+    }
+
+    // Get seller's products
+    const { data: sellerProducts } = await supabase
+      .from("products")
+      .select("id")
+      .eq("seller_id", sellerId);
+
+    // Delete product images for all seller's products
+    if (sellerProducts) {
+      for (const product of sellerProducts) {
+        await supabase.from("product_images").delete().eq("product_id", product.id);
+      }
+    }
+
+    // Delete seller's products
+    await supabase.from("products").delete().eq("seller_id", sellerId);
+
+    // Delete seller
+    const { error } = await supabase
+      .from("sellers")
+      .delete()
+      .eq("id", sellerId);
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete seller", variant: "destructive" });
+    } else {
+      toast({ title: "Success", description: "Seller and all their products deleted" });
+      setShowSellerModal(false);
+      fetchData();
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -399,13 +508,27 @@ const Admin = () => {
                               <p className="text-sm text-muted-foreground">
                                 {(seller.profiles as any)?.email || "N/A"}
                               </p>
+                              {seller.phone && (
+                                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                                  <Phone className="w-3 h-3" /> {seller.phone}
+                                </p>
+                              )}
                             </td>
                             <td className="p-4 text-muted-foreground">
                               {seller.village}, {seller.district}
                             </td>
-                            <td className="p-4 text-muted-foreground">{seller.craft_specialty}</td>
+                            <td className="p-4 text-muted-foreground">
+                              <div>
+                                {seller.craft_specialty}
+                                {seller.years_experience && (
+                                  <p className="text-xs text-muted-foreground">
+                                    {seller.years_experience} years exp.
+                                  </p>
+                                )}
+                              </div>
+                            </td>
                             <td className="p-4">
-                              <div className="flex items-center gap-2">
+                              <div className="flex flex-col items-start gap-1">
                                 {seller.is_approved ? (
                                   <span className="px-2 py-1 text-xs bg-sage/20 text-sage rounded-full">
                                     Approved
@@ -423,7 +546,7 @@ const Admin = () => {
                               </div>
                             </td>
                             <td className="p-4">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 {!seller.is_approved ? (
                                   <>
                                     <Button
@@ -444,21 +567,48 @@ const Admin = () => {
                                   </>
                                 ) : (
                                   <>
-                                    {!seller.is_verified && (
+                                    {!seller.is_verified ? (
                                       <Button
                                         size="sm"
                                         variant="outline"
                                         onClick={() => handleVerifySeller(seller.id, true)}
+                                        title="Verify Seller"
                                       >
                                         <Star className="w-4 h-4 mr-1" />
                                         Verify
                                       </Button>
+                                    ) : (
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => handleVerifySeller(seller.id, false)}
+                                        title="Remove Verification"
+                                      >
+                                        <Star className="w-4 h-4 fill-current text-yellow-500" />
+                                      </Button>
                                     )}
-                                    <Button size="sm" variant="ghost">
-                                      <Eye className="w-4 h-4" />
-                                    </Button>
                                   </>
                                 )}
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setSelectedSeller(seller);
+                                    setShowSellerModal(true);
+                                  }}
+                                  title="View Details"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => handleDeleteSeller(seller.id)}
+                                  title="Delete Seller"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
                               </div>
                             </td>
                           </tr>
@@ -496,13 +646,24 @@ const Admin = () => {
                         <tr key={product.id} className="border-t border-border">
                           <td className="p-4">
                             <p className="font-medium text-foreground">{product.name}</p>
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{product.description}</p>
                           </td>
                           <td className="p-4 text-muted-foreground">
                             {product.sellers?.business_name}
                           </td>
-                          <td className="p-4 text-foreground">₹{product.price.toLocaleString()}</td>
+                          <td className="p-4 text-foreground">
+                            <div>
+                              <span className="font-medium">₹{product.price.toLocaleString()}</span>
+                              {product.original_price && product.original_price > product.price && (
+                                <span className="text-xs text-muted-foreground line-through ml-2">
+                                  ₹{product.original_price.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground">Stock: {product.stock_quantity || 0}</span>
+                          </td>
                           <td className="p-4">
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col items-start gap-1">
                               {product.is_approved ? (
                                 <span className="px-2 py-1 text-xs bg-sage/20 text-sage rounded-full">
                                   Approved
@@ -517,10 +678,15 @@ const Admin = () => {
                                   Featured
                                 </span>
                               )}
+                              {product.is_active === false && (
+                                <span className="px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded-full">
+                                  Disabled
+                                </span>
+                              )}
                             </div>
                           </td>
                           <td className="p-4">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               {!product.is_approved ? (
                                 <>
                                   <Button
@@ -545,15 +711,40 @@ const Admin = () => {
                                     size="sm"
                                     variant={product.is_featured ? "cultural" : "outline"}
                                     onClick={() => handleFeatureProduct(product.id, !product.is_featured)}
+                                    title={product.is_featured ? "Remove from Featured" : "Add to Featured"}
                                   >
-                                    <Star className={`w-4 h-4 mr-1 ${product.is_featured ? "fill-current" : ""}`} />
-                                    {product.is_featured ? "Unfeature" : "Feature"}
+                                    <Star className={`w-4 h-4 ${product.is_featured ? "fill-current" : ""}`} />
                                   </Button>
-                                  <Button size="sm" variant="ghost">
-                                    <Eye className="w-4 h-4" />
+                                  <Button 
+                                    size="sm" 
+                                    variant={product.is_active !== false ? "outline" : "secondary"}
+                                    onClick={() => handleToggleProduct(product.id, product.is_active === false)}
+                                    title={product.is_active !== false ? "Disable in Shop" : "Enable in Shop"}
+                                  >
+                                    <Power className={`w-4 h-4 ${product.is_active === false ? "text-gray-500" : "text-green-600"}`} />
                                   </Button>
                                 </>
                               )}
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  setSelectedProduct(product);
+                                  setShowProductModal(true);
+                                }}
+                                title="View Details"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDeleteProduct(product.id)}
+                                title="Delete Product"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
                             </div>
                           </td>
                         </tr>
@@ -585,6 +776,219 @@ const Admin = () => {
           </Tabs>
         </div>
       </main>
+
+      {/* Seller Details Modal */}
+      <Dialog open={showSellerModal} onOpenChange={setShowSellerModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif">Seller Details</DialogTitle>
+          </DialogHeader>
+          {selectedSeller && (
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <div className="bg-muted rounded-lg p-4">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Users className="w-4 h-4" /> Business Information
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Business Name</p>
+                    <p className="font-medium">{selectedSeller.business_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Craft Specialty</p>
+                    <p className="font-medium">{selectedSeller.craft_specialty}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Years of Experience</p>
+                    <p className="font-medium">{selectedSeller.years_experience || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Email</p>
+                    <p className="font-medium">{(selectedSeller.profiles as any)?.email || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="bg-muted rounded-lg p-4">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Phone className="w-4 h-4" /> Contact Information
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Phone</p>
+                    <p className="font-medium">{selectedSeller.phone || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> Location
+                    </p>
+                    <p className="font-medium">{selectedSeller.village}, {selectedSeller.district}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Info */}
+              <div className="bg-muted rounded-lg p-4">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <CreditCard className="w-4 h-4" /> Payment Details
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">UPI ID</p>
+                    <p className="font-medium font-mono">{selectedSeller.upi_id || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Bank Account</p>
+                    <p className="font-medium font-mono">{selectedSeller.bank_account_number || "N/A"}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-muted-foreground">IFSC Code</p>
+                    <p className="font-medium font-mono">{selectedSeller.bank_ifsc || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="flex items-center gap-3">
+                <span className={`px-3 py-1 text-sm rounded-full ${selectedSeller.is_approved ? "bg-sage/20 text-sage" : "bg-vermilion/20 text-vermilion"}`}>
+                  {selectedSeller.is_approved ? "Approved" : "Pending Approval"}
+                </span>
+                {selectedSeller.is_verified && (
+                  <span className="px-3 py-1 text-sm bg-primary/20 text-primary rounded-full">
+                    Verified
+                  </span>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-3 pt-4 border-t">
+                {!selectedSeller.is_approved && (
+                  <Button onClick={() => { handleApproveSeller(selectedSeller.id, true); setShowSellerModal(false); }}>
+                    <CheckCircle className="w-4 h-4 mr-2" /> Approve Seller
+                  </Button>
+                )}
+                {selectedSeller.is_approved && !selectedSeller.is_verified && (
+                  <Button variant="outline" onClick={() => { handleVerifySeller(selectedSeller.id, true); setShowSellerModal(false); }}>
+                    <Star className="w-4 h-4 mr-2" /> Verify Seller
+                  </Button>
+                )}
+                <Button 
+                  variant="destructive" 
+                  onClick={() => handleDeleteSeller(selectedSeller.id)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" /> Delete Seller
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Product Details Modal */}
+      <Dialog open={showProductModal} onOpenChange={setShowProductModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif">Product Details</DialogTitle>
+          </DialogHeader>
+          {selectedProduct && (
+            <div className="space-y-6">
+              {/* Product Info */}
+              <div className="bg-muted rounded-lg p-4">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Package className="w-4 h-4" /> Product Information
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Product Name</p>
+                    <p className="font-medium text-lg">{selectedProduct.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Description</p>
+                    <p className="font-medium">{selectedProduct.description || "No description"}</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 pt-2">
+                    <div>
+                      <p className="text-muted-foreground">Price</p>
+                      <p className="font-medium text-lg">₹{selectedProduct.price.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Original Price</p>
+                      <p className="font-medium">₹{selectedProduct.original_price?.toLocaleString() || selectedProduct.price.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Stock</p>
+                      <p className="font-medium">{selectedProduct.stock_quantity || 0} units</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seller Info */}
+              <div className="bg-muted rounded-lg p-4">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Users className="w-4 h-4" /> Seller Information
+                </h4>
+                <p className="font-medium">{selectedProduct.sellers?.business_name || "Unknown"}</p>
+              </div>
+
+              {/* Status Badges */}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className={`px-3 py-1 text-sm rounded-full ${selectedProduct.is_approved ? "bg-sage/20 text-sage" : "bg-vermilion/20 text-vermilion"}`}>
+                  {selectedProduct.is_approved ? "Approved" : "Pending Approval"}
+                </span>
+                {selectedProduct.is_featured && (
+                  <span className="px-3 py-1 text-sm bg-golden/20 text-golden rounded-full">
+                    Featured
+                  </span>
+                )}
+                <span className={`px-3 py-1 text-sm rounded-full ${selectedProduct.is_active !== false ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
+                  {selectedProduct.is_active !== false ? "Active in Shop" : "Disabled"}
+                </span>
+                {selectedProduct.is_handmade && (
+                  <span className="px-3 py-1 text-sm bg-amber-100 text-amber-700 rounded-full">
+                    Handmade
+                  </span>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-wrap items-center gap-3 pt-4 border-t">
+                {!selectedProduct.is_approved && (
+                  <Button onClick={() => { handleApproveProduct(selectedProduct.id, true); setShowProductModal(false); }}>
+                    <CheckCircle className="w-4 h-4 mr-2" /> Approve Product
+                  </Button>
+                )}
+                {selectedProduct.is_approved && (
+                  <>
+                    <Button 
+                      variant={selectedProduct.is_featured ? "cultural" : "outline"}
+                      onClick={() => { handleFeatureProduct(selectedProduct.id, !selectedProduct.is_featured); setShowProductModal(false); }}
+                    >
+                      <Star className={`w-4 h-4 mr-2 ${selectedProduct.is_featured ? "fill-current" : ""}`} />
+                      {selectedProduct.is_featured ? "Remove Featured" : "Add to Featured"}
+                    </Button>
+                    <Button 
+                      variant={selectedProduct.is_active !== false ? "outline" : "secondary"}
+                      onClick={() => { handleToggleProduct(selectedProduct.id, selectedProduct.is_active === false); setShowProductModal(false); }}
+                    >
+                      <Power className={`w-4 h-4 mr-2 ${selectedProduct.is_active === false ? "text-gray-500" : "text-green-600"}`} />
+                      {selectedProduct.is_active !== false ? "Disable in Shop" : "Enable in Shop"}
+                    </Button>
+                  </>
+                )}
+                <Button 
+                  variant="destructive" 
+                  onClick={() => handleDeleteProduct(selectedProduct.id)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" /> Delete Product
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
