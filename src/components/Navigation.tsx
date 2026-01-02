@@ -23,15 +23,15 @@ const Navigation = () => {
   const desktopNavLinks = [
     { name: t('common.home'), path: "/", icon: Home },
     { name: t('common.shop'), path: "/shop", icon: Store },
-    { name: t('common.artisans'), path: "/artisans", icon: Palette },
-    { name: t('common.story'), path: "/story", icon: BookOpen },
+    // { name: t('common.artisans'), path: "/artisans", icon: Palette }, // Disabled
+    // { name: t('common.story'), path: "/story", icon: BookOpen }, // Disabled
     { name: t('common.about'), path: "/about", icon: Info },
   ];
 
   // Mobile nav links - excludes items already in bottom nav (Home, Shop, Cart, Wishlist, Profile)
   const mobileNavLinks = [
-    { name: t('common.artisans'), path: "/artisans", icon: Palette },
-    { name: t('common.story'), path: "/story", icon: BookOpen },
+    // { name: t('common.artisans'), path: "/artisans", icon: Palette }, // Disabled
+    // { name: t('common.story'), path: "/story", icon: BookOpen }, // Disabled
     { name: t('common.about'), path: "/about", icon: Info },
   ];
 

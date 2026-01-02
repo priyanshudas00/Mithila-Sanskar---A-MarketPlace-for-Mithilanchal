@@ -30,9 +30,9 @@ const Admin = lazy(() => import("./pages/Admin"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const SellersAgreement = lazy(() => import("./pages/SellersAgreement"));
-const Artisans = lazy(() => import("./pages/Artisans"));
-const Artisan = lazy(() => import("./pages/Artisan"));
-const Story = lazy(() => import("./pages/Story"));
+// const Artisans = lazy(() => import("./pages/Artisans")); // Disabled
+// const Artisan = lazy(() => import("./pages/Artisan")); // Disabled
+// const Story = lazy(() => import("./pages/Story")); // Disabled
 const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
 const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
@@ -104,9 +104,9 @@ const App = () => (
                 <Route path="/admin" element={<SuspenseWrapper><Admin /></SuspenseWrapper>} />
                 
                 {/* Content Pages */}
-                <Route path="/artisans" element={<SuspenseWrapper><Artisans /></SuspenseWrapper>} />
-                <Route path="/artisan/:id" element={<SuspenseWrapper><Artisan /></SuspenseWrapper>} />
-                <Route path="/story" element={<SuspenseWrapper><Story /></SuspenseWrapper>} />
+                {/* <Route path="/artisans" element={<SuspenseWrapper><Artisans /></SuspenseWrapper>} /> */} {/* Disabled */}
+                {/* <Route path="/artisan/:id" element={<SuspenseWrapper><Artisan /></SuspenseWrapper>} /> */} {/* Disabled */}
+                {/* <Route path="/story" element={<SuspenseWrapper><Story /></SuspenseWrapper>} /> */} {/* Disabled */}
                 <Route path="/contact" element={<SuspenseWrapper><Contact /></SuspenseWrapper>} />
                 <Route path="/about" element={<SuspenseWrapper><About /></SuspenseWrapper>} />
                 

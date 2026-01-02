@@ -2,7 +2,7 @@ import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Categories from "@/components/Categories";
 import FeaturedProducts from "@/components/FeaturedProducts";
-import ArtisanStories from "@/components/ArtisanStories";
+// import ArtisanStories from "@/components/ArtisanStories"; // Disabled
 import CulturalStory from "@/components/CulturalStory";
 import TrustBadges from "@/components/TrustBadges";
 import CallToAction from "@/components/CallToAction";
@@ -18,7 +18,7 @@ const Index = () => {
         <Categories />
         <FeaturedProducts />
         <CulturalStory />
-        <ArtisanStories />
+        {/* <ArtisanStories /> */} {/* Disabled */}
         <CallToAction />
       </main>
       <Footer />
