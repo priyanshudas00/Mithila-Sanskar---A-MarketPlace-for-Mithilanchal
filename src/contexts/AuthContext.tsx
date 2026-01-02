@@ -131,31 +131,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const redirectUrl = `${getSiteOrigin()}/`;
     
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
-      
-      // Force session sync after sign up
-      if (!error) {
-        setTimeout(() => {
-          supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session?.user) {
-              setSession(session);
-              setUser(session.user);
-              checkUserRoles(session.user.id);
-            }
+      // Retry logic for network failures
+      let lastError: any = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: redirectUrl,
+              data: {
+                full_name: fullName,
+              },
+            },
           });
-        }, 100);
+          
+          if (error) {
+            lastError = error;
+            // Don't retry on auth errors (invalid email, etc)
+            break;
+          }
+          
+          // Force session sync after sign up
+          setTimeout(() => {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+              if (session?.user) {
+                setSession(session);
+                setUser(session.user);
+                checkUserRoles(session.user.id);
+              }
+            });
+          }, 100);
+          
+          return { error: null };
+        } catch (err: any) {
+          lastError = err;
+          console.log(`Sign up attempt ${attempt}/3 failed:`, err.message);
+          if (attempt < 3) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        }
       }
       
-      return { error };
+      return { error: lastError };
     } catch (err) {
       return { error: err };
     }
@@ -163,25 +181,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      // Force session sync after sign in
-      if (!error) {
-        setTimeout(() => {
-          supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session?.user) {
-              setSession(session);
-              setUser(session.user);
-              checkUserRoles(session.user.id);
-            }
+      // Retry logic for network failures
+      let lastError: any = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
           });
-        }, 100);
+          
+          if (error) {
+            lastError = error;
+            // Don't retry on auth errors (wrong password, etc)
+            break;
+          }
+          
+          // Force session sync after sign in
+          setTimeout(() => {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+              if (session?.user) {
+                setSession(session);
+                setUser(session.user);
+                checkUserRoles(session.user.id);
+              }
+            });
+          }, 100);
+          
+          return { error: null };
+        } catch (err: any) {
+          lastError = err;
+          console.log(`Sign in attempt ${attempt}/3 failed:`, err.message);
+          if (attempt < 3) {
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        }
       }
       
-      return { error };
+      return { error: lastError };
     } catch (err) {
       return { error: err };
     }

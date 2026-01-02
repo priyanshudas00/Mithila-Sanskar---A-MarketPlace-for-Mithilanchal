@@ -8,13 +8,60 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Custom storage with fallback for mobile/PWA
+const getStorage = () => {
+  try {
+    // Test localStorage availability
+    localStorage.setItem('test', '1');
+    localStorage.removeItem('test');
+    return localStorage;
+  } catch (e) {
+    // Fallback to in-memory storage if localStorage is unavailable (quota exceeded, restricted)
+    const memoryStorage: { [key: string]: string } = {};
+    return {
+      getItem: (key: string) => memoryStorage[key] || null,
+      setItem: (key: string, value: string) => { memoryStorage[key] = value; },
+      removeItem: (key: string) => { delete memoryStorage[key]; },
+    } as Storage;
+  }
+};
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: getStorage(),
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
     storageKey: 'mithila-sanskar-auth',
     flowType: 'pkce',
-  }
+    onSessionRefreshFailed: (error) => {
+      console.warn('Session refresh failed:', error);
+      // Attempt to recover by checking if user is still valid
+      supabase.auth.getUser().catch((err) => {
+        console.error('User validation failed:', err);
+      });
+    },
+  },
+  global: {
+    fetch: async (url, options = {}) => {
+      // Add timeout and retry logic for mobile networks
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+      
+      try {
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        return response;
+      } catch (error: any) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          console.warn('Request timeout (30s):', url);
+        }
+        throw error;
+      }
+    },
+  },
 });
