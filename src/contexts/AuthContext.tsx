@@ -41,6 +41,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    let retries = 0;
+    const maxRetries = 3;
+    const sessionCheckInterval = setInterval(async () => {
+      if (retries < maxRetries) {
+        try {
+          // Force session check bypass cache
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user && !user) {
+            // Session recovered from storage
+            setSession(session);
+            setUser(session.user);
+            setLoading(false);
+            checkUserRoles(session.user.id);
+            clearInterval(sessionCheckInterval);
+          }
+        } catch (error) {
+          retries++;
+          console.log(`Session recovery attempt ${retries}/${maxRetries}`);
+        }
+      } else {
+        clearInterval(sessionCheckInterval);
+      }
+    }, 1000);
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -57,6 +81,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAdmin(false);
           setIsSeller(false);
         }
+        
+        // Clear retry interval once auth state changes
+        clearInterval(sessionCheckInterval);
       }
     );
 
@@ -69,6 +96,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (session?.user) {
         checkUserRoles(session.user.id);
       }
+      clearInterval(sessionCheckInterval);
+    }).catch(error => {
+      console.error('Session check error:', error);
     });
 
     // If user was redirected back from OAuth (access_token in hash), the onAuthStateChange
@@ -90,32 +120,71 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }, 500);
     }
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(sessionCheckInterval);
+    };
   }, []);
 
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${getSiteOrigin()}/`;
     
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+          },
         },
-      },
-    });
-    return { error };
+      });
+      
+      // Force session sync after sign up
+      if (!error) {
+        setTimeout(() => {
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+              setSession(session);
+              setUser(session.user);
+              checkUserRoles(session.user.id);
+            }
+          });
+        }, 100);
+      }
+      
+      return { error };
+    } catch (err) {
+      return { error: err };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      // Force session sync after sign in
+      if (!error) {
+        setTimeout(() => {
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+              setSession(session);
+              setUser(session.user);
+              checkUserRoles(session.user.id);
+            }
+          });
+        }, 100);
+      }
+      
+      return { error };
+    } catch (err) {
+      return { error: err };
+    }
   };
 
   const signInWithProvider = async (provider: string) => {
@@ -127,6 +196,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           redirectTo: redirectUrl,
         },
       });
+      
+      // Force session sync after OAuth redirect
+      setTimeout(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            setSession(session);
+            setUser(session.user);
+            checkUserRoles(session.user.id);
+          }
+        });
+      }, 100);
+      
       return { error: (result as any).error };
     } catch (error: any) {
       // Return error object so the UI can surface actionable messages
@@ -135,9 +216,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Clear local state first
+    setUser(null);
+    setSession(null);
     setIsAdmin(false);
     setIsSeller(false);
+    
+    // Then sign out from Supabase
+    try {
+      await supabase.auth.signOut();
+      // Clear all auth-related localStorage keys
+      localStorage.removeItem('mithila-sanskar-auth');
+      localStorage.removeItem('supabase.auth.token');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   return (

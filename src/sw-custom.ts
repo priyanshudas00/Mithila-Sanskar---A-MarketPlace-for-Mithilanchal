@@ -5,6 +5,26 @@
 
 declare const self: ServiceWorkerGlobalScope;
 
+// Bypass cache for auth-related requests
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // Always bypass cache for Supabase auth and session endpoints
+  if (
+    url.pathname.includes('/auth/') ||
+    url.pathname.includes('/session') ||
+    url.pathname.includes('/token') ||
+    url.hostname.includes('supabase.co')
+  ) {
+    event.respondWith(
+      fetch(event.request.clone()).catch(() => {
+        // If offline, return cached response or error
+        return caches.match(event.request) as any;
+      })
+    );
+  }
+});
+
 // Handle push notifications
 self.addEventListener('push', (event) => {
   if (!event.data) return;
