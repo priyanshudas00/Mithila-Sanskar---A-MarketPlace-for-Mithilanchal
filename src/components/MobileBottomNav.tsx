@@ -1,21 +1,24 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/hooks/useCart";
+import { Home, ShoppingCart, Heart, User, LogIn, ShoppingBag } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 
 const MobileBottomNav = () => {
   const { user } = useAuth();
   const { cartCount } = useCart();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const isActive = (path: string) => location.pathname === path;
 
   // Core navigation items - 5 max for optimal UX
   const navItems = [
-    { path: "/", label: "Home", emoji: "🏠" },
-    { path: "/shop", label: "Shop", emoji: "🛍️" },
-    { path: "/cart", label: "Cart", emoji: "🛒", badge: cartCount },
-    { path: "/wishlist", label: "Wishlist", emoji: "❤️" },
-    { path: user ? "/profile" : "/auth", label: user ? "Profile" : "Login", emoji: user ? "👤" : "🔐" },
+    { path: "/", label: t("common.home"), icon: Home },
+    { path: "/shop", label: t("common.shop"), icon: ShoppingBag },
+    { path: "/cart", label: t("common.cart"), icon: ShoppingCart, badge: cartCount },
+    { path: "/wishlist", label: t("common.wishlist"), icon: Heart },
+    { path: user ? "/profile" : "/auth", label: user ? t("common.profile") : t("common.login"), icon: user ? User : LogIn },
   ];
 
   return (
@@ -32,7 +35,7 @@ const MobileBottomNav = () => {
             }`}
           >
             <div className="relative">
-              <span className="text-xl">{item.emoji}</span>
+                <item.icon className="w-5 h-5" />
               {item.badge !== undefined && item.badge > 0 && (
                 <span className="absolute -top-2 -right-3 w-5 h-5 bg-gradient-to-r from-terracotta to-vermilion text-white text-[10px] rounded-full flex items-center justify-center font-bold shadow-md animate-pulse">
                   {item.badge > 9 ? "9+" : item.badge}

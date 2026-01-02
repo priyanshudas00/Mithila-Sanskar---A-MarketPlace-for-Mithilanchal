@@ -33,6 +33,9 @@ const SellersAgreement = lazy(() => import("./pages/SellersAgreement"));
 const Artisans = lazy(() => import("./pages/Artisans"));
 const Artisan = lazy(() => import("./pages/Artisan"));
 const Story = lazy(() => import("./pages/Story"));
+const Contact = lazy(() => import("./pages/Contact"));
+const About = lazy(() => import("./pages/About"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -104,11 +107,14 @@ const App = () => (
                 <Route path="/artisans" element={<SuspenseWrapper><Artisans /></SuspenseWrapper>} />
                 <Route path="/artisan/:id" element={<SuspenseWrapper><Artisan /></SuspenseWrapper>} />
                 <Route path="/story" element={<SuspenseWrapper><Story /></SuspenseWrapper>} />
+                <Route path="/contact" element={<SuspenseWrapper><Contact /></SuspenseWrapper>} />
+                <Route path="/about" element={<SuspenseWrapper><About /></SuspenseWrapper>} />
                 
                 {/* Legal Pages */}
                 <Route path="/privacy-policy" element={<SuspenseWrapper><PrivacyPolicy /></SuspenseWrapper>} />
                 <Route path="/terms-of-service" element={<SuspenseWrapper><TermsOfService /></SuspenseWrapper>} />
                 <Route path="/sellers-agreement" element={<SuspenseWrapper><SellersAgreement /></SuspenseWrapper>} />
+                <Route path="/refund-policy" element={<SuspenseWrapper><RefundPolicy /></SuspenseWrapper>} />
                 
                 {/* Debug Route - Only in Development */}
                 {import.meta.env.DEV && (

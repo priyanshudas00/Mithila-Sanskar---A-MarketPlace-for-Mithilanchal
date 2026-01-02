@@ -8,6 +8,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { Heart, ShoppingCart, ArrowRight, Search, Home } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,6 +17,7 @@ const Wishlist = () => {
   const navigate = useNavigate();
   const { wishlistItems, wishlistLoading, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -25,10 +27,10 @@ const Wishlist = () => {
         <Navigation />
         <main className="container mx-auto px-4 py-20 flex-1 flex flex-col items-center justify-center text-center">
           <Heart className="w-16 h-16 text-muted-foreground mb-4 opacity-50" />
-          <h1 className="text-3xl font-serif font-bold mb-2">Sign in to View Wishlist</h1>
-          <p className="text-muted-foreground mb-6">Please sign in to save and view your favorite products</p>
+          <h1 className="text-3xl font-serif font-bold mb-2">{t("wishlist.signinTitle")}</h1>
+          <p className="text-muted-foreground mb-6">{t("wishlist.signinDesc")}</p>
           <Button onClick={() => navigate("/auth")} size="lg" variant="heritage" className="gap-2">
-            Sign In Now
+            {t("wishlist.signinCta")}
           </Button>
         </main>
         <Footer />
@@ -89,14 +91,14 @@ const Wishlist = () => {
           <Card className="text-center py-12">
             <CardContent>
               <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <h2 className="text-2xl font-serif font-bold mb-2">Your Wishlist is Empty</h2>
+              <h2 className="text-2xl font-serif font-bold mb-2">{t("wishlist.emptyTitle")}</h2>
               <p className="text-muted-foreground mb-6">
-                Start adding products to your wishlist by clicking the heart icon
+                {t("wishlist.emptyDesc")}
               </p>
               <Link to="/shop">
                 <Button size="lg" variant="heritage" className="gap-2">
                   <Search className="w-4 h-4" />
-                  Start Shopping
+                  {t("wishlist.startShopping")}
                 </Button>
               </Link>
             </CardContent>
@@ -109,7 +111,7 @@ const Wishlist = () => {
             {filteredItems.length === 0 ? (
               <Card className="text-center py-8">
                 <CardContent>
-                  <p className="text-muted-foreground">No items match your search</p>
+                  <p className="text-muted-foreground">{t("wishlist.noResults")}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -118,13 +120,13 @@ const Wishlist = () => {
                   <Card key={(item as { id: string }).id} className="overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="relative bg-muted h-48 flex items-center justify-center">
                       <div className="text-center">
-                        <div className="text-4xl mb-2">🎨</div>
+                          <Palette className="w-12 h-12 mb-2 text-muted-foreground mx-auto" />
                         <p className="text-sm text-muted-foreground">{item.products?.name?.substring(0, 30)}</p>
                       </div>
                       <button
                         onClick={() => handleRemoveFromWishlist(item.id)}
                         className="absolute top-2 right-2 p-2 bg-white rounded-full shadow hover:bg-muted transition-colors"
-                        title="Remove from wishlist"
+                        title={t("wishlist.remove")}
                       >
                         <Heart className="w-5 h-5 text-vermilion fill-vermilion" />
                       </button>

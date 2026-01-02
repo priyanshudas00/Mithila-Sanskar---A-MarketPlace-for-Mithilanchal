@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import heroImage from "@/assets/hero-mithila-art.jpg";
 
 const Hero = () => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Pattern */}
@@ -23,30 +25,28 @@ const Hero = () => {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border">
               <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse-soft" />
               <span className="text-sm font-medium text-muted-foreground">
-                Supporting 500+ Artisans Across Mithila
+                {t("hero.badge")}
               </span>
             </div>
             
             {/* Heading */}
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight text-foreground">
-              From the{" "}
-              <span className="text-gradient-cultural">Soil of Mithila</span>
+              {t("hero.headingPrefix")} {" "}
+              <span className="text-gradient-cultural">{t("hero.headingHighlight")}</span>
               <br />
-              to Your Home
+              {t("hero.headingSuffix")}
             </h1>
             
             {/* Description */}
             <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-              Discover authentic handcrafted art, textiles, and treasures directly from 
-              the artisans of Mithila. Each piece carries centuries of tradition, 
-              love, and a story waiting to be told.
+              {t("hero.description")}
             </p>
             
             {/* CTAs */}
             <div className="flex flex-wrap gap-4">
               <Link to="/shop">
                 <Button variant="cultural" size="xl">
-                  Explore Collection
+                  {t("hero.explore")}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
@@ -54,10 +54,10 @@ const Hero = () => {
                 variant="heritage" 
                 size="xl" 
                 className="gap-2"
-                onClick={() => toast({ title: "Coming Soon", description: "Our story video is coming soon!" })}
+                onClick={() => toast({ title: t("footer.socialToastTitle"), description: t("hero.storyComingSoon") })}
               >
                 <Play className="w-5 h-5" />
-                Watch Our Story
+                {t("hero.watchStory")}
               </Button>
             </div>
             
@@ -65,15 +65,15 @@ const Hero = () => {
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-border">
               <div>
                 <div className="font-serif text-3xl md:text-4xl text-foreground">500+</div>
-                <div className="text-sm text-muted-foreground">Artisans</div>
+                <div className="text-sm text-muted-foreground">{t("hero.statsArtisans")}</div>
               </div>
               <div>
                 <div className="font-serif text-3xl md:text-4xl text-foreground">2000+</div>
-                <div className="text-sm text-muted-foreground">Products</div>
+                <div className="text-sm text-muted-foreground">{t("hero.statsProducts")}</div>
               </div>
               <div>
                 <div className="font-serif text-3xl md:text-4xl text-foreground">50+</div>
-                <div className="text-sm text-muted-foreground">Villages</div>
+                <div className="text-sm text-muted-foreground">{t("hero.statsVillages")}</div>
               </div>
             </div>
           </div>
@@ -90,11 +90,11 @@ const Hero = () => {
               <div className="absolute -bottom-6 -left-6 bg-card p-4 rounded-xl shadow-medium border border-border max-w-xs animate-float">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-vermilion to-terracotta flex items-center justify-center shrink-0">
-                    <span className="text-cream text-xl">🎨</span>
+                      <Palette className="w-6 h-6 text-cream" />
                   </div>
                   <div>
-                    <p className="font-serif font-semibold text-foreground">Handmade with Love</p>
-                    <p className="text-sm text-muted-foreground">Every product has a story</p>
+                    <p className="font-serif font-semibold text-foreground">{t("hero.cardTitle")}</p>
+                    <p className="text-sm text-muted-foreground">{t("hero.cardSubtitle")}</p>
                   </div>
                 </div>
               </div>
