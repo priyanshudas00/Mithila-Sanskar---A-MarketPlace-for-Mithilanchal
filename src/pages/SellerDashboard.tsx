@@ -25,9 +25,18 @@ const SellerDashboard = () => {
   const { sendNotification } = useNotifications();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'settings'>('overview');
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    business_name: '',
+    craft_specialty: '',
+    years_experience: 0,
+    village: '',
+    district: '',
+    upi_id: '',
+  });
 
   // Get seller profile
-  const { data: seller, isLoading: sellerLoading } = useQuery({
+  const { data: seller, isLoading: sellerLoading, refetch: refetchSeller } = useQuery({
     queryKey: ['seller', user?.id],
     queryFn: async () => {
       if (!user) return null;
@@ -40,6 +49,49 @@ const SellerDashboard = () => {
       return data;
     },
     enabled: !!user,
+  });
+
+  // Initialize edit form when seller data loads
+  const handleEditClick = () => {
+    if (seller) {
+      setEditFormData({
+        business_name: seller.business_name || '',
+        craft_specialty: seller.craft_specialty || '',
+        years_experience: seller.years_experience || 0,
+        village: seller.village || '',
+        district: seller.district || '',
+        upi_id: seller.upi_id || '',
+      });
+      setIsEditingProfile(true);
+    }
+  };
+
+  // Update seller profile mutation
+  const updateSellerProfile = useMutation({
+    mutationFn: async (data: typeof editFormData) => {
+      if (!seller) throw new Error('Seller not found');
+      const { error } = await supabase
+        .from('sellers')
+        .update(data)
+        .eq('id', seller.id);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Profile Updated",
+        description: "Your seller profile has been updated successfully.",
+      });
+      setIsEditingProfile(false);
+      refetchSeller();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    },
   });
 
   // Get seller's products
@@ -536,43 +588,138 @@ const SellerDashboard = () => {
 
             {activeTab === 'settings' && (
               <div className="space-y-6">
-                <h2 className="font-serif text-2xl text-foreground">Settings</h2>
-                
-                <div className="bg-background rounded-xl p-6 shadow-soft">
-                  <h3 className="font-medium text-foreground mb-4">Business Information</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Business Name</Label>
-                      <p className="text-foreground">{seller.business_name}</p>
-                    </div>
-                    <div>
-                      <Label>Location</Label>
-                      <p className="text-foreground">{seller.village}, {seller.district}</p>
-                    </div>
-                    <div>
-                      <Label>Craft Specialty</Label>
-                      <p className="text-foreground">{seller.craft_specialty || 'Not specified'}</p>
-                    </div>
-                    <div>
-                      <Label>Experience</Label>
-                      <p className="text-foreground">{seller.years_experience} years</p>
-                    </div>
-                  </div>
+                <div className="flex items-center justify-between">
+                  <h2 className="font-serif text-2xl text-foreground">Settings</h2>
+                  {!isEditingProfile && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEditClick}
+                      className="gap-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit Profile
+                    </Button>
+                  )}
                 </div>
 
-                <div className="bg-background rounded-xl p-6 shadow-soft">
-                  <h3 className="font-medium text-foreground mb-4">Payment Information</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>UPI ID</Label>
-                      <p className="text-foreground">{seller.upi_id || 'Not set'}</p>
+                {isEditingProfile ? (
+                  <div className="bg-background rounded-xl p-6 shadow-soft space-y-6">
+                    <h3 className="font-medium text-foreground">Edit Business Information</h3>
+                    
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="business_name">Business Name</Label>
+                        <Input
+                          id="business_name"
+                          value={editFormData.business_name}
+                          onChange={(e) => setEditFormData({ ...editFormData, business_name: e.target.value })}
+                          placeholder="Enter business name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="craft_specialty">Craft Specialty</Label>
+                        <Input
+                          id="craft_specialty"
+                          value={editFormData.craft_specialty}
+                          onChange={(e) => setEditFormData({ ...editFormData, craft_specialty: e.target.value })}
+                          placeholder="e.g., Mithila Paintings"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="years_experience">Years of Experience</Label>
+                        <Input
+                          id="years_experience"
+                          type="number"
+                          value={editFormData.years_experience}
+                          onChange={(e) => setEditFormData({ ...editFormData, years_experience: parseInt(e.target.value) || 0 })}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="village">Village</Label>
+                        <Input
+                          id="village"
+                          value={editFormData.village}
+                          onChange={(e) => setEditFormData({ ...editFormData, village: e.target.value })}
+                          placeholder="Enter village name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="district">District</Label>
+                        <Input
+                          id="district"
+                          value={editFormData.district}
+                          onChange={(e) => setEditFormData({ ...editFormData, district: e.target.value })}
+                          placeholder="Enter district name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="upi_id">UPI ID</Label>
+                        <Input
+                          id="upi_id"
+                          value={editFormData.upi_id}
+                          onChange={(e) => setEditFormData({ ...editFormData, upi_id: e.target.value })}
+                          placeholder="your-upi@bank"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label>Bank Account</Label>
-                      <p className="text-foreground">{seller.bank_account_number ? '••••' + seller.bank_account_number.slice(-4) : 'Not set'}</p>
+
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsEditingProfile(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="cultural"
+                        onClick={() => updateSellerProfile.mutate(editFormData)}
+                        disabled={updateSellerProfile.isPending}
+                      >
+                        {updateSellerProfile.isPending ? 'Saving...' : 'Save Changes'}
+                      </Button>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="bg-background rounded-xl p-6 shadow-soft">
+                      <h3 className="font-medium text-foreground mb-4">Business Information</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <Label>Business Name</Label>
+                          <p className="text-foreground">{seller.business_name}</p>
+                        </div>
+                        <div>
+                          <Label>Location</Label>
+                          <p className="text-foreground">{seller.village}, {seller.district}</p>
+                        </div>
+                        <div>
+                          <Label>Craft Specialty</Label>
+                          <p className="text-foreground">{seller.craft_specialty || 'Not specified'}</p>
+                        </div>
+                        <div>
+                          <Label>Experience</Label>
+                          <p className="text-foreground">{seller.years_experience} years</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-background rounded-xl p-6 shadow-soft">
+                      <h3 className="font-medium text-foreground mb-4">Payment Information</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <Label>UPI ID</Label>
+                          <p className="text-foreground">{seller.upi_id || 'Not set'}</p>
+                        </div>
+                        <div>
+                          <Label>Bank Account</Label>
+                          <p className="text-foreground">{seller.bank_account_number ? '••••' + seller.bank_account_number.slice(-4) : 'Not set'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </main>
