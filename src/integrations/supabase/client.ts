@@ -34,6 +34,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     detectSessionInUrl: true,
     storageKey: 'mithila-sanskar-auth',
     flowType: 'pkce',
+    debug: true, // Enable debug logging for OAuth issues
     onSessionRefreshFailed: (error) => {
       console.warn('Session refresh failed:', error);
       // Attempt to recover by checking if user is still valid

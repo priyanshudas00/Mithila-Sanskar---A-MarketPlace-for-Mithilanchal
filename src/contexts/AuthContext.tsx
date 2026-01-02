@@ -101,23 +101,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('Session check error:', error);
     });
 
-    // If user was redirected back from OAuth (access_token in hash), the onAuthStateChange
-    // listener above will automatically pick up the session. We just need to clean up the URL
-    // and show a success message once the session is set.
+    // Handle OAuth redirect on mobile/desktop
     const hash = window.location.hash || window.location.href;
     if (hash.includes('access_token') || hash.includes('provider_token') || hash.includes('refresh_token')) {
-      // The supabase-js v2 client auto-parses the hash and fires onAuthStateChange.
-      // Wait briefly then clean URL and redirect (the listener above sets state).
-      setTimeout(() => {
-        try {
-          // Clean URL to remove tokens
-          history.replaceState(null, '', window.location.pathname + window.location.search);
-          // Redirect to home if not already there
-          if (window.location.pathname !== '/') {
-            window.location.replace('/');
-          }
-        } catch (e) { /* ignore */ }
-      }, 500);
+      console.log('OAuth redirect detected, processing session...');
+      
+      // Force session parsing from URL immediately
+      supabase.auth.getSession().then(({ data: { session }, error }) => {
+        if (error) {
+          console.error('OAuth session error:', error);
+        }
+        
+        if (session?.user) {
+          console.log('OAuth session established:', session.user.email);
+          setSession(session);
+          setUser(session.user);
+          setLoading(false);
+          checkUserRoles(session.user.id);
+          
+          // Clean URL after confirming session
+          setTimeout(() => {
+            try {
+              history.replaceState(null, '', window.location.pathname + window.location.search);
+              if (window.location.pathname !== '/') {
+                window.location.replace('/');
+              }
+            } catch (e) { /* ignore */ }
+          }, 1000);
+        } else {
+          // Retry session check if not immediately available (mobile lag)
+          let retryCount = 0;
+          const retryInterval = setInterval(() => {
+            retryCount++;
+            supabase.auth.getSession().then(({ data: { session } }) => {
+              if (session?.user || retryCount > 5) {
+                clearInterval(retryInterval);
+                if (session?.user) {
+                  console.log('OAuth session recovered after retry:', session.user.email);
+                  setSession(session);
+                  setUser(session.user);
+                  setLoading(false);
+                  checkUserRoles(session.user.id);
+                  
+                  setTimeout(() => {
+                    try {
+                      history.replaceState(null, '', window.location.pathname + window.location.search);
+                    } catch (e) { /* ignore */ }
+                  }, 500);
+                }
+              }
+            });
+          }, 500);
+        }
+      });
     }
 
     return () => {
