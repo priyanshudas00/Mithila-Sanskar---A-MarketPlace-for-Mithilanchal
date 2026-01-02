@@ -5,9 +5,23 @@
 
 declare const self: ServiceWorkerGlobalScope;
 
-// Bypass cache for auth-related requests
+// Bypass cache for auth-related requests and OAuth callbacks
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+  const requestUrl = event.request.url;
+  
+  // CRITICAL: Skip service worker entirely for OAuth callbacks
+  // These URLs contain access_token in hash fragment
+  if (
+    requestUrl.includes('access_token') ||
+    requestUrl.includes('refresh_token') ||
+    requestUrl.includes('provider_token') ||
+    requestUrl.includes('error_description') ||
+    url.hash.includes('access_token')
+  ) {
+    // Let browser handle OAuth redirect without SW interference
+    return;
+  }
   
   // Always bypass cache for Supabase auth and session endpoints
   if (

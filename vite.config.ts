@@ -197,9 +197,23 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}'],
+        // CRITICAL: Exclude auth-related URLs from service worker
+        navigateFallbackDenylist: [
+          /^\/auth/,
+          /access_token/,
+          /refresh_token/,
+          /provider_token/,
+          /error_description/,
+        ],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            // Supabase API but EXCLUDE auth endpoints
+            urlPattern: ({ url }) => {
+              return url.hostname.includes('supabase.co') && 
+                     !url.pathname.includes('/auth/') &&
+                     !url.pathname.includes('/token') &&
+                     !url.pathname.includes('/session');
+            },
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-api-cache',
