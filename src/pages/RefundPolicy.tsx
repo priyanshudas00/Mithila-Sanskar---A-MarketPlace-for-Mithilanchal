@@ -7,7 +7,7 @@ const RefundPolicy = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-24 md:pb-20">
         <section className="bg-gradient-cultural py-12 mb-8">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl space-y-3">

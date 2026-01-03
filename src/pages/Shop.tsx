@@ -69,7 +69,7 @@ const Shop = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-24 md:pb-20">
         {/* Header */}
         <div className="bg-gradient-cultural py-8 md:py-12 mb-6 md:mb-8">
           <div className="container mx-auto px-4">

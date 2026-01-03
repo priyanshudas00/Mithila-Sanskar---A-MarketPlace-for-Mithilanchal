@@ -16,7 +16,7 @@ const Cart = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <main className="pt-32 pb-20">
+        <main className="pt-32 pb-24 md:pb-20">
           <div className="container mx-auto px-4 text-center">
             <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="font-serif text-3xl text-foreground mb-4">{t("cart.title")}</h1>
@@ -34,7 +34,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="pt-28 pb-20">
+      <main className="pt-28 pb-24 md:pb-20">
         <div className="container mx-auto px-4">
           <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-8">{t("cart.title")}</h1>
           

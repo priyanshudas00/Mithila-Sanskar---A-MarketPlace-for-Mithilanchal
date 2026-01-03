@@ -11,7 +11,7 @@ const Artisan = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <main className="pt-24 pb-20">
+        <main className="pt-24 pb-24 md:pb-20">
           <div className="container mx-auto px-4">
             <h2 className="font-serif text-2xl">Artisan not found</h2>
             <p className="text-muted-foreground mt-2">We couldn't find the artisan you're looking for.</p>
@@ -26,7 +26,7 @@ const Artisan = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-24 md:pb-20">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-1">

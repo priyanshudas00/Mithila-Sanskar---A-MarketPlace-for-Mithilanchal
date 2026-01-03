@@ -126,7 +126,7 @@ const OrderDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <main className="pt-24 pb-20">
+        <main className="pt-24 pb-24 md:pb-20">
           <div className="container mx-auto px-4 max-w-4xl text-center py-20">
             <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
             <h2 className="font-serif text-xl text-foreground mb-2">Order not found</h2>
@@ -149,7 +149,7 @@ const OrderDetail = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-24 md:pb-20">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Back Link */}
           <Link to="/orders" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">

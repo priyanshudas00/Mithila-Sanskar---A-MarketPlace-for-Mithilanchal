@@ -30,7 +30,7 @@ const DebugAuth = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-24 md:pb-20">
         <div className="container mx-auto px-4">
           <h1 className="font-serif text-2xl mb-4">Auth Debug</h1>
           <p className="text-muted-foreground mb-4">This page helps diagnose Google OAuth configuration issues.</p>

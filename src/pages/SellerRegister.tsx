@@ -115,7 +115,7 @@ const SellerRegister = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <main className="pt-32 pb-20">
+        <main className="pt-32 pb-24 md:pb-20">
           <div className="container mx-auto px-4 text-center">
             <h1 className="font-serif text-3xl text-foreground mb-4">{t("seller.register.guestTitle")}</h1>
             <p className="text-muted-foreground mb-8">{t("seller.register.guestDesc")}</p>
@@ -133,7 +133,7 @@ const SellerRegister = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-28 pb-20">
+      <main className="pt-28 pb-24 md:pb-20">
         <div className="container mx-auto px-4">
           <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
             <ArrowLeft className="w-4 h-4" />

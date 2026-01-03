@@ -5,7 +5,7 @@ const Story = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-24 md:pb-20">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="font-serif text-4xl text-foreground mb-4">Our Story</h1>

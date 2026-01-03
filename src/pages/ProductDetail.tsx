@@ -83,7 +83,7 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <main className="pt-24 pb-20 flex items-center justify-center">
+        <main className="pt-24 pb-24 md:pb-20 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </main>
         <Footer />
@@ -95,7 +95,7 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <main className="pt-24 pb-20">
+        <main className="pt-24 pb-24 md:pb-20">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-2xl font-serif mb-4">{t("productDetail.notFound")}</h1>
             <Link to="/shop">
@@ -112,7 +112,7 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-24 md:pb-20">
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground mb-4 md:mb-8 overflow-x-auto whitespace-nowrap pb-2 scrollbar-hide">
