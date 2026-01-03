@@ -225,9 +225,9 @@ const AddProduct = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 pb-28 md:pb-8">
         <div className="max-w-3xl mx-auto">
-          <h1 className="font-serif text-3xl text-foreground mb-8">Add New Product</h1>
+          <h1 className="font-serif text-2xl md:text-3xl text-foreground mb-6 md:mb-8">Add New Product</h1>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Images */}
@@ -419,12 +419,12 @@ const AddProduct = () => {
               </div>
             </div>
 
-            <div className="flex gap-4">
-              <Button type="submit" variant="cultural" size="lg" disabled={loading}>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pb-4">
+              <Button type="submit" variant="cultural" size="lg" disabled={loading} className="w-full sm:w-auto">
                 {loading ? "Adding Product..." : "Add Product"}
               </Button>
-              <Link to="/seller/dashboard">
-                <Button type="button" variant="heritage" size="lg">Cancel</Button>
+              <Link to="/seller/dashboard" className="w-full sm:w-auto">
+                <Button type="button" variant="heritage" size="lg" className="w-full">Cancel</Button>
               </Link>
             </div>
           </form>
